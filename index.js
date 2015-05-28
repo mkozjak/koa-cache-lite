@@ -23,10 +23,10 @@ module.exports = function(routes, debug) {
       let _url = this.request.url
 
       // return cached response
-      if (cache.has(this.request.url)) {
-        let item = cache.get(this.request.url).get('data')
+      if (cache.has(_url)) {
+        let item = cache.get(_url).get('data')
 
-        if (debug) console.info('returning from cache', this.request.url)
+        if (debug) console.info('returning from cache', _url)
 
         for (let key of item.keys()) {
           if (key == 'header') {
