@@ -1,0 +1,18 @@
+{
+  "name": "koa-cache-lite",
+  "description": "Zero-dependency koa router cache",
+  "author": {
+    "name": "Mario Kozjak",
+    "email": "kozjakm1@gmail.com"
+  },
+  "version": "0.1.0",
+  "main": "index.js",
+  "engine": "iojs >= 2.1.0",
+  "license": {
+    "type": "MIT"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/mkozjak/koa-cache-lite.git"
+  }
+}
