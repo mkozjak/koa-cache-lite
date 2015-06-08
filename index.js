@@ -77,20 +77,6 @@ module.exports = function(routes, opts) {
           _response[key] = this.response[key]
       }
 
-      /*
-      let entry = new Map()
-      entry.set('data', _response)
-      entry.set('timeout', setTimeout(function() {
-        if (opts.debug) console.info('deleting from cache', _url)
-
-        // delete caching entry from cache on expiration
-        if (cache.has(_url)) cache.delete(_url, entry)
-      }, function() {
-        if (expireOpts.has(_url)) return expireOpts.get(_url)
-        return defaultTimeout
-      }()))
-      */
-
       if (opts.debug) console.info('caching', _url)
 
       // set new caching entry
@@ -104,10 +90,18 @@ module.exports = function(routes, opts) {
 }
 
 function Store(opts) {
-  let type = opts.external ? opts.external.type : 'memory'
+  let type = 'in-memory'
+
+  if (opts.external) {
+    type = opts.external.type
+    opts.host = opts.external.host || '127.0.0.1'
+    opts.port = opts.external.port || 6379
+    opts.external = null
+  }
+
   let Driver = drivers[type]
 
-  this.store = new Driver(opts.external || null)
+  this.store = new Driver(opts || null)
 }
 
 Store.prototype.get = function(key) {
@@ -125,7 +119,7 @@ Store.prototype.set = function(key, value, timeout) {
   return this.store.set(key, value, timeout)
 }
 
-function Memory() {
+function Memory(opts) {
   let cache = new Map()
   let routeExpire = new Map()
 
@@ -142,12 +136,13 @@ function Memory() {
       if (opts.debug) console.info('deleting from cache', key)
 
       // delete caching entry from cache on expiration
-      if (cache.has(key)) cache.delete(key, entry)
+      if (cache.has(key)) cache.delete(key)
     }, function() {
       if (expireOpts.has(key)) return expireOpts.get(key)
       return defaultTimeout
     }()))
 
+    if (opts.debug) console.info('setting new item in cache for url', key)
     return Promise.resolve(cache.set(key, value))
   }
 }
@@ -167,6 +162,8 @@ function Redis(opts) {
   }
 
   this.set = function(key, value, timeout) {
+    if (opts.debug) console.info('setting new item in cache for url', key)
+
     return conn.set(key, JSON.stringify(value)).then(function() {
       return conn.expire(key, function() {
         if (expireOpts.has(key)) return expireOpts.get(key) / 1000
@@ -178,5 +175,5 @@ function Redis(opts) {
 
 var drivers = {
   'redis': Redis,
-  'memory': Memory
+  'in-memory': Memory
 }
