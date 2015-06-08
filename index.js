@@ -1,12 +1,13 @@
 'use strict'
 
-var expireOpts = new Map()
+var Store = require('./lib/store')
 var defaultTimeout = 5000
 var responseKeys = [ 'header', 'body' ]
 
 module.exports = function(routes, opts) {
   if (opts.debug) console.info('cache options:', routes, opts.debug)
 
+  opts.expireOpts = new Map()
   var store = new Store(opts)
 
   return function *(next) {
@@ -26,7 +27,7 @@ module.exports = function(routes, opts) {
           }
 
           // override default timeout
-          expireOpts.set(this.request.path, routeExpire)
+          opts.expireOpts.set(this.request.path, routeExpire)
         }
         else return yield next
       }
@@ -88,93 +89,4 @@ module.exports = function(routes, opts) {
       this.throw(error)
     }
   }
-}
-
-function Store(opts) {
-  let type = 'in-memory'
-
-  if (opts.external) {
-    type = opts.external.type
-    opts.host = opts.external.host || '127.0.0.1'
-    opts.port = opts.external.port || 6379
-    opts.external = null
-  }
-
-  let Driver = drivers[type]
-
-  this.store = new Driver(opts || null)
-}
-
-Store.prototype.get = function(key) {
-  // returns a new Promise
-  return this.store.get(key)
-}
-
-Store.prototype.has = function(key) {
-  // returns a new Promise
-  return this.store.has(key)
-}
-
-Store.prototype.set = function(key, value, timeout) {
-  // returns a new Promise
-  return this.store.set(key, value, timeout)
-}
-
-function Memory(opts) {
-  let cache = new Map()
-  let routeExpire = new Map()
-
-  this.get = function(key) {
-    return Promise.resolve(cache.get(key))
-  }
-
-  this.has = function(key) {
-    return Promise.resolve(cache.has(key))
-  }
-
-  this.set = function(key, value, timeout) {
-    routeExpire.set(key, setTimeout(function() {
-      if (opts.debug) console.info('deleting from cache', key)
-
-      // delete caching entry from cache on expiration
-      if (cache.has(key)) cache.delete(key)
-    }, function() {
-      if (expireOpts.has(key)) return expireOpts.get(key)
-      return defaultTimeout
-    }()))
-
-    if (opts.debug) console.info('setting new item in cache for url', key)
-    return Promise.resolve(cache.set(key, value))
-  }
-}
-
-function Redis(opts) {
-  let conn = new (require('ioredis'))(opts.port || '127.0.0.1', opts.host || 6379)
-
-  this.get = function(key) {
-    return conn.get(key)
-  }
-
-  this.has = function(key) {
-    return conn.exists(key).then(function(check) {
-      if (check > 0) return Promise.resolve(true)
-      else return Promise.resolve(false)
-    })
-  }
-
-  this.set = function(key, value, timeout) {
-    if (opts.debug) console.info('setting new item in cache for url', key)
-
-    return conn.set(key, JSON.stringify(value)).then(function() {
-      return conn.expire(key, function() {
-        if (expireOpts.has(key)) return expireOpts.get(key) / 1000
-        return defaultTimeout / 1000
-      }())
-    })
-  }
-}
-
-var drivers = {
-  'redis': Redis,
-  'in-memory': Memory
 }
