@@ -28,7 +28,7 @@ module.exports = function(routes, opts) {
 
       if (exists) {
         let item = yield store.get(_url)
-        item = JSON.parse(item)
+        if ('string' == typeof(item)) item = JSON.parse(item)
         if (opts.debug) console.info('returning from cache for url', _url)
 
         for (let key in item) {
