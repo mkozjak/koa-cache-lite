@@ -8,18 +8,6 @@ module.exports = function(routes, opts) {
   if (opts.debug) console.info('cache options:', routes, opts.debug)
 
   var store = new Store(opts)
-  expireOpts.set('test2', 1000)
-  store.set('test2', '12413531', 1000).then(function() {
-    store.has('test2').then(function(a) {
-      console.log(a)
-    })
-  })
-
-  setTimeout(function() {
-    store.has('test2').then(function(a) {
-      console.log(a)
-    })
-  }, 2500)
 
   return function *(next) {
     try {
@@ -36,15 +24,16 @@ module.exports = function(routes, opts) {
       let _url = this.request.url
 
       // return cached response
-      if (store.has(_url)) {
-        // let item = store.get(_url).get('data')
-        let item = store.get(_url)
+      let exists = yield store.has(_url)
 
-        if (opts.debug) console.info('returning from cache', _url)
+      if (exists) {
+        let item = yield store.get(_url)
+        item = JSON.parse(item)
+        if (opts.debug) console.info('returning from cache for url', _url)
 
-        for (let key of item.keys()) {
+        for (let key in item) {
           if (key == 'header') {
-            let value = item.get(key)
+            let value = item[key]
 
             for (let hkey in value) {
               this.set(hkey, value[hkey])
@@ -53,7 +42,7 @@ module.exports = function(routes, opts) {
             continue
           }
 
-          this[key] = item.get(key)
+          this[key] = item[key]
         }
 
         return
@@ -81,11 +70,11 @@ module.exports = function(routes, opts) {
       // call next middleware and cache response on return
       yield next
 
-      let _response = new Map()
+      let _response = new Object()
 
       for (let key in this.response) {
         if (responseKeys.indexOf(key) != -1)
-          _response.set(key, this.response[key])
+          _response[key] = this.response[key]
       }
 
       /*
@@ -178,7 +167,7 @@ function Redis(opts) {
   }
 
   this.set = function(key, value, timeout) {
-    return conn.set(key, value).then(function() {
+    return conn.set(key, JSON.stringify(value)).then(function() {
       return conn.expire(key, function() {
         if (expireOpts.has(key)) return expireOpts.get(key) / 1000
         return defaultTimeout
