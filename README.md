@@ -34,4 +34,4 @@ koa.listen(1337)
 ```
 
 koa-cache-lite accepts two arguments.
-First one is an object consisting of routes (route from this.request.path is a key and Boolean/Number is a value) and the second one is an options object, having an 'external' key where a type of cache is used and its location. The debug mode can be flagged, also (console is used for debugging).
+First one is an object consisting of routes (route from this.request.path is a key and Boolean/Number is a value) and the second one is an options object, having an 'external' key where a type of cache and its location are defined. The debug mode can be flagged, also (console is used for debugging).
