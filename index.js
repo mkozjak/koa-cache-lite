@@ -1,7 +1,7 @@
 'use strict'
 
 var expireOpts = new Map()
-var defaultTimeout = 2000
+var defaultTimeout = 5000
 var responseKeys = [ 'header', 'body' ]
 
 module.exports = function(routes, opts) {
@@ -168,7 +168,7 @@ function Redis(opts) {
     return conn.set(key, JSON.stringify(value)).then(function() {
       return conn.expire(key, function() {
         if (expireOpts.has(key)) return expireOpts.get(key) / 1000
-        return defaultTimeout
+        return defaultTimeout / 1000
       }())
     })
   }
