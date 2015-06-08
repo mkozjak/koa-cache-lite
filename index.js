@@ -11,6 +11,26 @@ module.exports = function(routes, opts) {
 
   return function *(next) {
     try {
+      // check if route is permitted to be cached
+      for (let route in routes) {
+        if (this.request.path.indexOf(route) != -1) {
+          let routeExpire = routes[route]
+
+          if (routeExpire == false) {
+            return yield next
+          }
+
+          if (isNaN(routeExpire) && (typeof routeExpire != Boolean)) {
+            if (opts.debug) console.warn('invalid cache setting:', routeExpire)
+            return yield next
+          }
+
+          // override default timeout
+          expireOpts.set(this.request.path, routeExpire)
+        }
+        else return yield next
+      }
+
       // check if no-cache is provided
       if (this.request.header['cache-control'] == 'no-cache') {
         return yield next
@@ -46,25 +66,6 @@ module.exports = function(routes, opts) {
         }
 
         return
-      }
-
-      // check if route is permitted to be cached
-      for (let route in routes) {
-        if (this.request.path.indexOf(route) != -1) {
-          let routeExpire = routes[route]
-
-          if (routeExpire == false) {
-            return yield next
-          }
-
-          if (isNaN(routeExpire) && (typeof routeExpire != Boolean)) {
-            if (opts.debug) console.warn('invalid cache setting:', routeExpire)
-            return yield next
-          }
-
-          // override default timeout
-          expireOpts.set(this.request.path, routeExpire)
-        }
       }
 
       // call next middleware and cache response on return
