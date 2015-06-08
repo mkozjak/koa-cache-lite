@@ -1,12 +1,13 @@
 'use strict'
 
-var cache = new Map()
-var expire = new Map()
+var expireOpts = new Map()
 var defaultTimeout = 2000
 var responseKeys = [ 'header', 'body' ]
 
-module.exports = function(routes, debug) {
-  if (debug) console.info('cache options:', routes, debug)
+module.exports = function(routes, opts) {
+  if (opts.debug) console.info('cache options:', routes, opts.debug)
+
+  var store = new Store(opts)
 
   return function *(next) {
     try {
@@ -23,14 +24,16 @@ module.exports = function(routes, debug) {
       let _url = this.request.url
 
       // return cached response
-      if (cache.has(_url)) {
-        let item = cache.get(_url).get('data')
+      let exists = yield store.has(_url)
 
-        if (debug) console.info('returning from cache', _url)
+      if (exists) {
+        let item = yield store.get(_url)
+        if ('string' == typeof(item)) item = JSON.parse(item)
+        if (opts.debug) console.info('returning from cache for url', _url)
 
-        for (let key of item.keys()) {
+        for (let key in item) {
           if (key == 'header') {
-            let value = item.get(key)
+            let value = item[key]
 
             for (let hkey in value) {
               this.set(hkey, value[hkey])
@@ -39,7 +42,7 @@ module.exports = function(routes, debug) {
             continue
           }
 
-          this[key] = item.get(key)
+          this[key] = item[key]
         }
 
         return
@@ -55,45 +58,122 @@ module.exports = function(routes, debug) {
           }
 
           if (isNaN(routeExpire) && (typeof routeExpire != Boolean)) {
-            if (debug) console.warn('invalid cache setting:', routeExpire)
+            if (opts.debug) console.warn('invalid cache setting:', routeExpire)
             return yield next
           }
 
           // override default timeout
-          expire.set(this.request.path, routeExpire)
+          expireOpts.set(this.request.path, routeExpire)
         }
       }
 
       // call next middleware and cache response on return
       yield next
 
-      let _response = new Map()
+      let _response = new Object()
 
       for (let key in this.response) {
         if (responseKeys.indexOf(key) != -1)
-          _response.set(key, this.response[key])
+          _response[key] = this.response[key]
       }
 
-      let entry = new Map()
-      entry.set('data', _response)
-      entry.set('timeout', setTimeout(function() {
-        if (debug) console.info('deleting from cache', _url)
-
-        // delete caching entry from cache on expiration
-        if (cache.has(_url)) cache.delete(_url, entry)
-      }, function() {
-        if (expire.has(_url)) return expire.get(_url)
-        return defaultTimeout
-      }()))
-
-      if (debug) console.info('caching', _url)
+      if (opts.debug) console.info('caching', _url)
 
       // set new caching entry
-      cache.set(_url, entry)
+      store.set(_url, _response)
     }
     catch (error) {
-      if (debug) console.error(error)
+      if (opts.debug) console.error(error)
       this.throw(error)
     }
   }
+}
+
+function Store(opts) {
+  let type = 'in-memory'
+
+  if (opts.external) {
+    type = opts.external.type
+    opts.host = opts.external.host || '127.0.0.1'
+    opts.port = opts.external.port || 6379
+    opts.external = null
+  }
+
+  let Driver = drivers[type]
+
+  this.store = new Driver(opts || null)
+}
+
+Store.prototype.get = function(key) {
+  // returns a new Promise
+  return this.store.get(key)
+}
+
+Store.prototype.has = function(key) {
+  // returns a new Promise
+  return this.store.has(key)
+}
+
+Store.prototype.set = function(key, value, timeout) {
+  // returns a new Promise
+  return this.store.set(key, value, timeout)
+}
+
+function Memory(opts) {
+  let cache = new Map()
+  let routeExpire = new Map()
+
+  this.get = function(key) {
+    return Promise.resolve(cache.get(key))
+  }
+
+  this.has = function(key) {
+    return Promise.resolve(cache.has(key))
+  }
+
+  this.set = function(key, value, timeout) {
+    routeExpire.set(key, setTimeout(function() {
+      if (opts.debug) console.info('deleting from cache', key)
+
+      // delete caching entry from cache on expiration
+      if (cache.has(key)) cache.delete(key)
+    }, function() {
+      if (expireOpts.has(key)) return expireOpts.get(key)
+      return defaultTimeout
+    }()))
+
+    if (opts.debug) console.info('setting new item in cache for url', key)
+    return Promise.resolve(cache.set(key, value))
+  }
+}
+
+function Redis(opts) {
+  let conn = new (require('ioredis'))(opts.port || '127.0.0.1', opts.host || 6379)
+
+  this.get = function(key) {
+    return conn.get(key)
+  }
+
+  this.has = function(key) {
+    return conn.exists(key).then(function(check) {
+      if (check > 0) return Promise.resolve(true)
+      else return Promise.resolve(false)
+    })
+  }
+
+  this.set = function(key, value, timeout) {
+    if (opts.debug) console.info('setting new item in cache for url', key)
+
+    return conn.set(key, JSON.stringify(value)).then(function() {
+      return conn.expire(key, function() {
+        if (expireOpts.has(key)) return expireOpts.get(key) / 1000
+        return defaultTimeout
+      }())
+    })
+  }
+}
+
+var drivers = {
+  'redis': Redis,
+  'in-memory': Memory
 }
