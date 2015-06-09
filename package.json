@@ -5,23 +5,17 @@
     "name": "Mario Kozjak",
     "email": "kozjakm1@gmail.com"
   },
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "index.js",
   "engine": "iojs >= 2.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/mkozjak/koa-cache-lite.git"
+    "url": "https://github.com/mkozjak/koa-cache-lite"
   },
-  "readme": "# koa-cache-lite\n\nZero-dependency koa router cache\n\n## Example usage\n\n```js\n'use strict'\n\nvar cache = require('koa-cache-lite')\nvar koa = require('koa')()\n\n// use in-memory cache\nkoa.use(cache({\n  '/api/v1/test': 3000\n}, {\n  debug: true\n}))\n\n// or redis\nkoa.use(cache({\n  '/api/v1/test': 3000\n}, {\n  external: {\n    type: 'redis',\n    host: '127.0.0.1',\n    port: 6379\n  },\n  debug: true\n}))\n\n\nkoa.listen(1337)\n```\n\nkoa-cache-lite accepts two arguments.\nFirst one is an object consisting of routes (route from this.request.path is a key and Boolean/Number is a value) and the second one is an options object, having an 'external' key where a type of cache and its location are defined. The debug mode can be flagged, also (console is used for debugging).\n",
   "readmeFilename": "README.md",
-  "gitHead": "fa37717a5e93b76a94749b9b5ac839bc6b27d582",
   "bugs": {
     "url": "https://github.com/mkozjak/koa-cache-lite/issues"
   },
   "homepage": "https://github.com/mkozjak/koa-cache-lite#readme",
-  "_id": "koa-cache-lite@0.1.2",
-  "scripts": {},
-  "_shasum": "c9505af3d8b5d1eabb07254d9a9e22a46dc7a878",
-  "_from": "koa-cache-lite@>=0.1.0 <0.2.0"
 }
