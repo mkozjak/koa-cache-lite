@@ -17,7 +17,7 @@ koa.use(cache({
   debug: true
 }))
 
-// or redis
+// or redis (install ioredis manually with npm install ioredis)
 koa.use(cache({
   '/api/v1/test': 3000
 }, {
