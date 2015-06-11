@@ -1,13 +1,13 @@
 'use strict'
 
 var Store = require('./lib/store')
-var defaultTimeout = 5000
 var responseKeys = [ 'header', 'body' ]
 
 module.exports = function(routes, opts) {
   if (opts.debug) console.info('cache options:', routes, opts.debug)
 
   opts.expireOpts = new Map()
+  opts.defaultTimeout = 5000
   var store = new Store(opts)
 
   return function *(next) {
