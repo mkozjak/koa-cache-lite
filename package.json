@@ -5,7 +5,7 @@
     "name": "Mario Kozjak",
     "email": "kozjakm1@gmail.com"
   },
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "index.js",
   "engine": "iojs >= 2.1.0",
   "license": "MIT",
@@ -23,5 +23,5 @@
   "_id": "koa-cache-lite@0.1.6",
   "scripts": {},
   "_shasum": "745639464953a9e3f92cd83f4bc95a031384f574",
-  "_from": "koa-cache-lite@>=0.1.0 <0.2.0"
+  "_from": "koa-cache-lite@>=0.1.0 <0.2.1"
 }
