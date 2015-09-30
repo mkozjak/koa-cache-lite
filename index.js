@@ -13,23 +13,30 @@ module.exports = function(routes, opts) {
   return function *(next) {
     try {
       // check if route is permitted to be cached
-      for (let route in routes) {
-        if (this.request.path.indexOf(route) != -1) {
-          let routeExpire = routes[route]
+      let routeKeys = Object.keys(routes)
+
+      for (let i = 0; i < routeKeys.length; i++) {
+        let key = routeKeys[i]
+        if (this.request.path.indexOf(key) != -1) {
+          let routeExpire = routes[key]
 
           if (routeExpire == false) {
             return yield next
           }
 
-          if (isNaN(routeExpire) && (typeof routeExpire != Boolean)) {
+          if (isNaN(routeExpire) && (typeof routeExpire !== 'boolean')) {
             if (opts.debug) console.warn('invalid cache setting:', routeExpire)
             return yield next
           }
 
           // override default timeout
-          opts.expireOpts.set(this.request.path, routeExpire)
+          if (typeof routeExpire === 'boolean') routeExpire = opts.defaultTimeout
+          else opts.expireOpts.set(this.request.path, routeExpire)
+          break
         }
-        else return yield next
+
+        if (i == routeKeys.length - 1) return yield next
+        else continue
       }
 
       // check if no-cache is provided
