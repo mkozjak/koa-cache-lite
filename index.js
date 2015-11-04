@@ -9,13 +9,16 @@ module.exports = function(routes, opts) {
   opts.expireOpts = new Map()
   opts.defaultTimeout = 5000
   var store = new Store(opts)
+      
+  let routeKeys = Object.keys(routes)
+  let routeKeysLength = routeKeys.length
 
   return function *(next) {
     try {
       // check if route is permitted to be cached
-      let routeKeys = Object.keys(routes)
+      if (!routeKeysLength) return yield next;
 
-      for (let i = 0; i < routeKeys.length; i++) {
+      for (let i = 0; i < routeKeysLength; i++) {
         let key = routeKeys[i]
         if (this.request.path.indexOf(key) != -1) {
           let routeExpire = routes[key]
