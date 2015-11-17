@@ -35,7 +35,6 @@ module.exports = function(routes, opts) {
 
   return function *(next) {
     try {
-
       // check if route is permitted to be cached
       if (!routeKeysLength) return yield next;
 
