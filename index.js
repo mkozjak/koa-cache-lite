@@ -4,12 +4,12 @@ var Store = require('./lib/store')
 var responseKeys = [ 'header', 'body' ]
 
 module.exports = function(routes, opts) {
-  if (opts.debug) console.info('cache options:', routes, opts.debug)
+  if (opts.debug) console.info('cache options:', routes, opts)
 
   opts.expireOpts = new Map()
   opts.defaultTimeout = 5000
   var store = new Store(opts)
-      
+
   let routeKeys = Object.keys(routes)
   let routeKeysLength = routeKeys.length
 
@@ -18,9 +18,21 @@ module.exports = function(routes, opts) {
       // check if route is permitted to be cached
       if (!routeKeysLength) return yield next;
 
+      // create key
+      let request_url = this.request.url
+      if(opts.keyFragment !== undefined) {
+        if(this.request.header[opts.keyFragment] !== undefined) {
+          request_url = request_url.concat("@", this.request.header[opts.keyFragment])
+        }
+        else {
+            if (opts.debug) console.warn('Key fragment "%s" not set!', opts.keyFragment)
+            return yield next
+        }
+      }
+
       for (let i = 0; i < routeKeysLength; i++) {
         let key = routeKeys[i]
-        if (this.request.path.indexOf(key) != -1) {
+        if (request_url.indexOf(key) != -1) {
           let routeExpire = routes[key]
 
           if (routeExpire == false) {
@@ -34,7 +46,7 @@ module.exports = function(routes, opts) {
 
           // override default timeout
           if (typeof routeExpire === 'boolean') routeExpire = opts.defaultTimeout
-          else opts.expireOpts.set(this.request.path, routeExpire)
+          else opts.expireOpts.set(request_url, routeExpire)
           break
         }
 
@@ -52,15 +64,13 @@ module.exports = function(routes, opts) {
         return yield next
       }
 
-      let _url = this.request.url
-
       // return cached response
-      let exists = yield store.has(_url)
+      let exists = yield store.has(request_url)
 
       if (exists) {
-        let item = yield store.get(_url)
+        let item = yield store.get(request_url)
         if ('string' == typeof(item)) item = JSON.parse(item)
-        if (opts.debug) console.info('returning from cache for url', _url)
+        if (opts.debug) console.info('returning from cache for url', request_url)
 
         for (let key in item) {
           if (key == 'header') {
@@ -89,10 +99,10 @@ module.exports = function(routes, opts) {
           _response[key] = this.response[key]
       }
 
-      if (opts.debug) console.info('caching', _url)
+      if (opts.debug) console.info('caching', request_url)
 
       // set new caching entry
-      store.set(_url, _response)
+      store.set(request_url, _response)
     }
     catch (error) {
       if (opts.debug) console.error(error)
