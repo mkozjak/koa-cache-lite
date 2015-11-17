@@ -98,8 +98,14 @@ module.exports = function(routes, opts) {
         return yield next
       }
 
-      // check if HTTP methods other than GET are sent
+      // check if HTTP methods other than GET are sent and invalidate cache if true
       if (this.request.method != 'GET') {
+        for (let i = 0; i < routeKeysLength; i++) {
+          let key = routeKeys[i]
+          if (request_url.indexOf(key) != -1) {
+            store.delete(request_url)
+          }
+        }
         return yield next
       }
 
