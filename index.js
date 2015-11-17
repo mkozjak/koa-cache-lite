@@ -7,14 +7,35 @@ module.exports = function(routes, opts) {
   if (opts.debug) console.info('cache options:', routes, opts)
 
   opts.expireOpts = new Map()
+  opts.callCnt = new Map()
   opts.defaultTimeout = 5000
   var store = new Store(opts)
 
   let routeKeys = Object.keys(routes)
   let routeKeysLength = routeKeys.length
 
+  // set default increasing options if not defined
+  let incrs
+  if (opts.increasing !== undefined) {
+      incrs = opts.increasing
+      if (opts.increasing.timeout === undefined) opts.increasing.timeout = [1000, 2000, 3000, 4000, 5000]
+      if (opts.increasing.countHit === undefined) opts.increasing.countHit = [1, 3, 10, 20, 50]
+  }
+  else
+    incrs = {
+      timeout: [1000, 2000, 3000, 4000, 5000],
+      countHit: [1, 3, 10, 20, 50]
+    }
+
+  // clear call hit counter every minute
+  setInterval(function() {
+    if (opts.debug) console.info('clearing call hit counter')
+    opts.callCnt = new Map()
+  }, 30000)
+
   return function *(next) {
     try {
+
       // check if route is permitted to be cached
       if (!routeKeysLength) return yield next;
 
@@ -39,13 +60,31 @@ module.exports = function(routes, opts) {
             return yield next
           }
 
-          if (isNaN(routeExpire) && (typeof routeExpire !== 'boolean')) {
+          if (isNaN(routeExpire) && (typeof routeExpire !== 'boolean') && (routeExpire !== 'increasing')) {
             if (opts.debug) console.warn('invalid cache setting:', routeExpire)
             return yield next
           }
 
           // override default timeout
           if (typeof routeExpire === 'boolean') routeExpire = opts.defaultTimeout
+          else if (routeExpire === 'increasing') {
+              let count = opts.callCnt.has(request_url)
+              if (count) {
+                count = opts.callCnt.get(request_url) + 1
+                opts.callCnt.set(request_url, count)
+                let steps = Math.min(incrs.timeout.length, incrs.countHit.length)
+                for(let i = 0; i < steps; i++) {
+                  if (count == incrs.countHit[i]) {
+                    opts.expireOpts.set(request_url, incrs.timeout[i])
+                    break
+                  }
+                }
+              }
+              else {
+                opts.callCnt.set(request_url, 1)
+                opts.expireOpts.set(request_url, incrs.timeout[0])
+              }
+          }
           else opts.expireOpts.set(request_url, routeExpire)
           break
         }
