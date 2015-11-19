@@ -32,7 +32,7 @@ module.exports = function(routes, opts) {
   setInterval(function() {
     if (opts.debug) console.info('clearing call hit counter')
     opts.callCnt = new Map()
-  }, 30000)
+  }, 60000)
 
   return function *(next) {
     try {
