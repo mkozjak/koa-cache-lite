@@ -16,22 +16,23 @@ module.exports = function(routes, opts) {
 
   // set default increasing options if not defined
   let incrs
-  if (opts.increasing !== undefined) {
-      incrs = opts.increasing
-      if (opts.increasing.timeout === undefined) opts.increasing.timeout = [1000, 2000, 3000, 4000, 5000]
-      if (opts.increasing.countHit === undefined) opts.increasing.countHit = [1, 3, 10, 20, 50]
-  }
+  if (opts.increasing !== undefined) incrs = opts.increasing
   else
     incrs = {
-      timeout: [1000, 2000, 3000, 4000, 5000],
-      countHit: [1, 3, 10, 20, 50]
+      1: 1000,
+      3: 2000,
+      10: 3000,
+      20: 4000,
+      50: 5000
     }
+
+  let cntStep = Object.keys(incrs)
 
   // clear call hit counter every minute
   setInterval(function() {
     if (opts.debug) console.info('clearing call hit counter')
     opts.callCnt = new Map()
-  }, 30000)
+  }, 60000)
 
   return function *(next) {
     try {
@@ -71,17 +72,17 @@ module.exports = function(routes, opts) {
               if (count) {
                 count = opts.callCnt.get(request_url) + 1
                 opts.callCnt.set(request_url, count)
-                let steps = Math.min(incrs.timeout.length, incrs.countHit.length)
+                let steps = cntStep.length
                 for(let i = 0; i < steps; i++) {
-                  if (count == incrs.countHit[i]) {
-                    opts.expireOpts.set(request_url, incrs.timeout[i])
+                  if (count == cntStep[i]) {
+                    opts.expireOpts.set(request_url, incrs[cntStep[i]])
                     break
                   }
                 }
               }
               else {
                 opts.callCnt.set(request_url, 1)
-                opts.expireOpts.set(request_url, incrs.timeout[0])
+                opts.expireOpts.set(request_url, incrs[cntStep[0]])
               }
           }
           else opts.expireOpts.set(request_url, routeExpire)
