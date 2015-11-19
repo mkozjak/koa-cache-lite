@@ -34,13 +34,12 @@ koa.use(cache({
     '/api/v1/test': 'increasing'
   }, {
     increasing: {
-        // cache timeout per step
-        timeout: [1000, 2000, 5000, 10000, 20000, 30000],
-         // number of route calls per minute needed to increase cache timeout
-        countHit: [1, 5, 25, 100, 500, 2500]
+      1: 1000,  // key = route calls per minute, value = cache timeout
+      5: 2000,
+      25: 5000,
+      100: 10000
     },
-    // header field containing cache key appendix
-    keyFragment: 'cache',
+    keyFragment: 'cache', // header field containing cache key appendix
     debug: true
 }))
 
@@ -48,4 +47,4 @@ koa.listen(1337)
 ```
 
 koa-cache-lite accepts two arguments.
-First one is an object consisting of routes (route from this.request.path is a key and Boolean/Number/String is a value representing cache timeout for the specified route) and the second one is an options object, having an 'external' key where a type of cache and its location are defined, 'increasing' key where the cache timeout and count hit per step can be defined and 'keyFragment' where additional key fragments can be defined to customize the cache key. The debug mode can be flagged, also (console is used for debugging).
+First one is an object consisting of routes (route from this.request.path is a key and Boolean/Number/String is a value representing cache timeout for the specified route) and the second one is an options object, having an 'external' key where a type of cache and its location are defined, 'increasing' key consisting of cache timeouts per step (Number representing route calls per minute needed to increase cache timeout is the key and Number is a value representing cache timeout per step) and 'keyFragment' where additional key fragments can be defined to customize the cache key. The debug mode can be flagged, also (console is used for debugging).
