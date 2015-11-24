@@ -5,7 +5,7 @@
     "name": "Mario Kozjak",
     "email": "kozjakm1@gmail.com"
   },
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "index.js",
   "engine": "iojs >= 2.1.0",
   "license": "MIT",
