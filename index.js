@@ -41,8 +41,8 @@ module.exports = function(routes, opts) {
 
       // create key
       let request_url = this.request.url
-      if(opts.keyFragment !== undefined) {
-        if(this.request.header[opts.keyFragment] !== undefined) {
+      if (opts.keyFragment !== undefined) {
+        if (this.request.header[opts.keyFragment] !== undefined) {
           request_url = request_url.concat("@", this.request.header[opts.keyFragment])
         }
         else {
