@@ -1,7 +1,7 @@
 'use strict'
 
 var Store = require('./lib/store')
-var responseKeys = [ 'header', 'body' ]
+var responseKeys = [ 'status', 'message', 'header', 'body' ]
 
 module.exports = function(routes, opts) {
   if (opts.debug) console.info('cache options:', routes, opts)
