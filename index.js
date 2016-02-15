@@ -73,7 +73,8 @@ module.exports = function(routes, opts) {
                 count = opts.callCnt.get(request_url) + 1
                 opts.callCnt.set(request_url, count)
                 let steps = cntStep.length
-                for(let i = 0; i < steps; i++) {
+
+                for (let i = 0; i < steps; i++) {
                   if (count == cntStep[i]) {
                     opts.expireOpts.set(request_url, incrs[cntStep[i]])
                     break
