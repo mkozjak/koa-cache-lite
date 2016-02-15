@@ -3,7 +3,7 @@
 var Store = require('./lib/store')
 var responseKeys = [ 'status', 'message', 'header', 'body' ]
 
-module.exports = function(routes, opts) {
+module.exports = (routes, opts) => {
   if (opts.debug) console.info('cache options:', routes, opts)
 
   opts.expireOpts = new Map()
@@ -29,7 +29,7 @@ module.exports = function(routes, opts) {
   let cntStep = Object.keys(incrs)
 
   // clear call hit counter every minute
-  setInterval(function() {
+  setInterval(() => {
     if (opts.debug) console.info('clearing call hit counter')
     opts.callCnt = new Map()
   }, 60000)
