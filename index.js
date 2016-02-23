@@ -41,18 +41,20 @@ module.exports = (routes, opts) => {
 
       // create key
       let request_url = this.request.url
+
       if (opts.keyFragment !== undefined) {
         if (this.request.header[opts.keyFragment] !== undefined) {
           request_url = request_url.concat("@", this.request.header[opts.keyFragment])
         }
         else {
-            if (opts.debug) console.warn('Key fragment "%s" not set!', opts.keyFragment)
-            return yield next
+          if (opts.debug) console.warn('Key fragment "%s" not set!', opts.keyFragment)
+          return yield next
         }
       }
 
       for (let i = 0; i < routeKeysLength; i++) {
         let key = routeKeys[i]
+
         if (request_url.indexOf(key) != -1) {
           let routeExpire = routes[key]
 
@@ -68,23 +70,24 @@ module.exports = (routes, opts) => {
           // override default timeout
           if (typeof routeExpire === 'boolean') routeExpire = opts.defaultTimeout
           else if (routeExpire === 'increasing') {
-              let count = opts.callCnt.has(request_url)
-              if (count) {
-                count = opts.callCnt.get(request_url) + 1
-                opts.callCnt.set(request_url, count)
-                let steps = cntStep.length
+            let count = opts.callCnt.has(request_url)
 
-                for (let i = 0; i < steps; i++) {
-                  if (count == cntStep[i]) {
-                    opts.expireOpts.set(request_url, incrs[cntStep[i]])
-                    break
-                  }
+            if (count) {
+              count = opts.callCnt.get(request_url) + 1
+              opts.callCnt.set(request_url, count)
+              let steps = cntStep.length
+
+              for (let i = 0; i < steps; i++) {
+                if (count == cntStep[i]) {
+                  opts.expireOpts.set(request_url, incrs[cntStep[i]])
+                  break
                 }
               }
-              else {
-                opts.callCnt.set(request_url, 1)
-                opts.expireOpts.set(request_url, incrs[cntStep[0]])
-              }
+            }
+            else {
+              opts.callCnt.set(request_url, 1)
+              opts.expireOpts.set(request_url, incrs[cntStep[0]])
+            }
           }
           else opts.expireOpts.set(request_url, routeExpire)
           break
@@ -103,6 +106,7 @@ module.exports = (routes, opts) => {
       if (this.request.method != 'GET') {
         for (let i = 0; i < routeKeysLength; i++) {
           let key = routeKeys[i]
+
           if (request_url.indexOf(key) != -1) {
             store.delete(request_url)
           }
@@ -115,6 +119,7 @@ module.exports = (routes, opts) => {
 
       if (exists) {
         let item = yield store.get(request_url)
+
         if ('string' == typeof(item)) item = JSON.parse(item)
         if (opts.debug) console.info('returning from cache for url', request_url)
 
