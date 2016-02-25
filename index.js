@@ -70,14 +70,15 @@ module.exports = (routes, opts) => {
   let routeKeysLength = routeKeys.length
 
   // set default increasing options if not defined
-  if (opts.callCnt && opts.increasing === undefined) {
-    opts.increasing = {
-      1: 1000,
-      3: 2000,
-      10: 3000,
-      20: 4000,
-      50: 5000
-    }
+  if (opts.callCnt) {
+    if (opts.increasing === undefined)
+      opts.increasing = {
+        1: 1000,
+        3: 2000,
+        10: 3000,
+        20: 4000,
+        50: 5000
+      }
 
     let cntStep = Object.keys(opts.increasing)
 
@@ -210,7 +211,7 @@ module.exports = (routes, opts) => {
 
     // override default timeout
     if (typeof routeExpire === 'boolean') routeExpire = opts.defaultTimeout
-    else if (routeExpire === 'increasing') {
+    else if (routeExpire === 'increasing' && opts.increasing) {
       let count = opts.callCnt.has(requestKey)
 
       if (count) {
