@@ -7,7 +7,6 @@ module.exports = (routes, opts) => {
   // if (opts.debug) console.info('cache options:', routes, opts)
 
   opts.expireOpts = new Map()
-  opts.callCnt = new Map()
   opts.defaultTimeout = 5000
   var store = new Store(opts)
 
@@ -28,10 +27,13 @@ module.exports = (routes, opts) => {
       routes[key] = {
         timeout: routes[key]
       }
-    else if (routes[key] === 'increasing')
+    else if (routes[key] === 'increasing') {
       routes[key] = {
         timeout: 'increasing'
       }
+
+      if (!opts.callCnt) opts.callCnt = new Map()
+    }
 
     if (routes[key].cacheKeyArgs instanceof Array) {
       if (opts.debug) console.info('cacheKeyArgs of array type not supported:', key)
@@ -68,22 +70,23 @@ module.exports = (routes, opts) => {
   let routeKeysLength = routeKeys.length
 
   // set default increasing options if not defined
-  if (opts.increasing === undefined)
+  if (opts.callCnt && opts.increasing === undefined) {
     opts.increasing = {
       1: 1000,
       3: 2000,
       10: 3000,
       20: 4000,
       50: 5000
+    }
+
+    let cntStep = Object.keys(opts.increasing)
+
+    // clear call hit counter every minute
+    setInterval(() => {
+      if (opts.debug) console.info('clearing call hit counter')
+      opts.callCnt = new Map()
+    }, 60000)
   }
-
-  let cntStep = Object.keys(opts.increasing)
-
-  // clear call hit counter every minute
-  setInterval(() => {
-    if (opts.debug) console.info('clearing call hit counter')
-    opts.callCnt = new Map()
-  }, 60000)
 
   return function *(next) {
     try {
