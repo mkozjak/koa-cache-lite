@@ -68,18 +68,16 @@ module.exports = (routes, opts) => {
   let routeKeysLength = routeKeys.length
 
   // set default increasing options if not defined
-  let incrs
-
-  if (opts.increasing !== undefined) incrs = opts.increasing
-  else incrs = {
-    1: 1000,
-    3: 2000,
-    10: 3000,
-    20: 4000,
-    50: 5000
+  if (opts.increasing === undefined)
+    opts.increasing = {
+      1: 1000,
+      3: 2000,
+      10: 3000,
+      20: 4000,
+      50: 5000
   }
 
-  let cntStep = Object.keys(incrs)
+  let cntStep = Object.keys(opts.increasing)
 
   // clear call hit counter every minute
   setInterval(() => {
@@ -219,14 +217,14 @@ module.exports = (routes, opts) => {
 
         for (let i = 0; i < steps; i++) {
           if (count === cntStep[i]) {
-            opts.expireOpts.set(requestKey, incrs[cntStep[i]])
+            opts.expireOpts.set(requestKey, opts.increasing[cntStep[i]])
             break
           }
         }
       }
       else {
         opts.callCnt.set(requestKey, 1)
-        opts.expireOpts.set(requestKey, incrs[cntStep[0]])
+        opts.expireOpts.set(requestKey, opts.increasing[cntStep[0]])
       }
     }
     else opts.expireOpts.set(requestKey, routeExpire)
