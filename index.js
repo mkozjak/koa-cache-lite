@@ -24,9 +24,14 @@ module.exports = (routes, opts) => {
       continue
     }
 
-    if (!isNaN(routes[key])) {
-      routes[key] = { timeout: routes[key] }
-    }
+    if (!isNaN(routes[key]))
+      routes[key] = {
+        timeout: routes[key]
+      }
+    else if (routes[key] === 'increasing')
+      routes[key] = {
+        timeout: 'increasing'
+      }
 
     if (routes[key].cacheKeyArgs instanceof Array) {
       if (opts.debug) console.info('cacheKeyArgs of array type not supported:', key)
@@ -200,12 +205,6 @@ module.exports = (routes, opts) => {
 
     if (routeExpire === false) {
       return false
-    }
-
-    // TODO: move outside to the 'validate' part
-    if (isNaN(routeExpire) && typeof routeExpire !== 'boolean') {
-        if (opts.debug) console.warn('invalid cache setting:', routeExpire)
-        return false
     }
 
     // override default timeout
