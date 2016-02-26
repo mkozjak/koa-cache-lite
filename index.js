@@ -80,7 +80,7 @@ module.exports = (routes, opts) => {
         50: 5000
       }
 
-    let cntStep = Object.keys(opts.increasing)
+    var cntStep = Object.keys(opts.increasing)
 
     // clear call hit counter every minute
     setInterval(() => {
