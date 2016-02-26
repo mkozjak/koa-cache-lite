@@ -5,6 +5,15 @@
 
 Zero-dependency koa router cache
 
+## Installation
+
+Locally in your project or globally:
+
+```
+npm install koa-cache-lite
+npm install -g koa-cache-lite
+```
+
 ## Example usage
 
 ```js
@@ -49,10 +58,71 @@ koa.use(cache({
 koa.listen(1337)
 ```
 
+## API
+
+```js
+cache(routes, options)
+```
+
 koa-cache-lite accepts two arguments.  
-First one is an object consisting of routes (route from this.request.path is a key and Boolean/Number/String is a value representing cache timeout for the specified route)  
-and the second one is an options object, having an 'external' key where a type of cache and its location are defined,  
+
+First one is an object consisting of routes and the second one is an options object, having an 'external' key where a type of cache and its location are defined,  
 'increasing' key consisting of cache timeouts per step  
 (Number representing route calls per minute needed to increase cache timeout is the key and Number is a value representing cache timeout per step)  
-and 'keyFragment' where additional key fragments can be defined to customize the cache key.  
-The debug mode can be flagged, also (console is used for debugging).
+and 'cacheKeyArgs' where additional internal labeling values can be defined to customize the cache key.  
+The debug mode can be enabled (console is used for debugging).
+
+Routes {Object}:
+
+* `key`: `{String}` A string value consisting of optional parameter placeholders used to match the route for caching.
+
+```js
+cache({
+  ...
+  routes: {
+    {String}: {String|Number|Boolean}
+  }
+})
+
+// or
+cache({
+  ...
+  routes: {
+    {String}: {
+      timeout: {String|Number}
+      cacheKeyArgs: {
+        headers: {String|Array},
+        query: {String|Array}
+      }
+    }
+  }
+})
+
+// in example
+cache({
+  ...
+  routes: {
+
+    // will cache based on parameter 'id'
+    '/api/client/:id/tickets': 30000,
+
+    // will cache based on parameter 'uid' and an http header field 'x-auth-custom'
+    '/api/admin/register/:uid': {
+      timeout: 10000,
+      cacheKeyArgs: {
+        headers: 'x-auth-custom'
+      }
+    }
+  }
+})
+```
+
+Options {Object}:
+
+* `type`: `{String}` Type of caching system used. Can be 'memory' or 'redis' (in which case you need to install ioredis manually).
+* `host`: `{String}` If `type` is 'redis', the address used to connect to.
+* `port`: `{Number}` If `type` is 'redis', the port used to connect to.
+* `increasing`: `{Object}` An object consisting of api calls per minute cache timeout increase.
+* `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
+* `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
+
