@@ -71,7 +71,7 @@ module.exports = (routes, opts) => {
 
   // set default increasing options if not defined
   if (opts.callCnt) {
-    if (opts.increasing === undefined)
+    if (opts.increasing === undefined) {
       opts.increasing = {
         1: 1000,
         3: 2000,
@@ -79,8 +79,26 @@ module.exports = (routes, opts) => {
         20: 4000,
         50: 5000
       }
+    }
 
     var cntStep = Object.keys(opts.increasing)
+
+    for (let key of cntStep) {
+      if (typeof opts.increasing[key] === 'string') {
+        if (opts.increasing[key].search(/[0-9]+s$/) !== -1)
+          opts.increasing[key] = Number(opts.increasing[key].replace('s', '')) * 1000
+        else if (opts.increasing[key].search(/[0-9]+m$/) !== -1)
+          opts.increasing[key] = Number(opts.increasing[key].replace('m', '')) * 60000
+        else if (opts.increasing[key].search(/[0-9]+h$/) !== -1)
+          opts.increasing[key] = Number(opts.increasing[key].replace('h', '')) * 60000 * 60
+        else if (opts.increasing[key].search(/[0-9]+d$/) !== -1)
+          opts.increasing[key] = Number(opts.increasing[key].replace('d', '')) * 60000 * 60 * 24
+        else {
+          if (opts.debug) console.info('increasing timeout value invalid:', opts.increasing[key])
+          delete opts.increasing[key]
+        }
+      }
+    }
 
     // clear call hit counter every minute
     setInterval(() => {
