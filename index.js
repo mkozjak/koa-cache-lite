@@ -139,19 +139,17 @@ module.exports = (routes, opts) => {
         else if (!routes[routeKeys[i]].regex) continue
 
         // second pass - regex match
-        else {
-          if (routes[routeKeys[i]].regex.test(this.request.path)) {
-            if (opts.debug)
-              console.info('regex matched route:', this.request.url, routes[routeKeys[i]].regex)
+        else if (routes[routeKeys[i]].regex.test(this.request.path)) {
+          if (opts.debug)
+            console.info('regex matched route:', this.request.url, routes[routeKeys[i]].regex)
 
-            if (routes[key].cacheKeyArgs)
-              requestKey = yield setRequestKey(requestKey, key, this.request)
+          if (routes[key].cacheKeyArgs)
+            requestKey = yield setRequestKey(requestKey, key, this.request)
 
-            let ok = yield setExpires(i, requestKey)
-            if (!ok) return yield next
+          let ok = yield setExpires(i, requestKey)
+          if (!ok) return yield next
 
-            break
-          }
+          break
         }
 
         if (i === routeKeys.length - 1) return yield next
