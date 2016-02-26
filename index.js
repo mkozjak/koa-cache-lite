@@ -64,6 +64,11 @@ module.exports = (routes, opts) => {
         .replace(/\//g, '\\/'))
 
     }
+
+    if (key.indexOf('*') !== -1) {
+      routes[key]['regex'] = new RegExp(
+        key.replace('*', '.*'))
+    }
   }
 
   let routeKeys = Object.keys(routes)
