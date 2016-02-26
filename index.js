@@ -114,7 +114,7 @@ module.exports = (routes, opts) => {
 
   return function *(next) {
     try {
-      // check if route is permitted to be cached
+      // check if route is permitted to be cached FIXME?
       if (!routeKeysLength) return yield next;
 
       // create key
