@@ -4,7 +4,7 @@ var Store = require('./lib/store')
 var responseKeys = [ 'status', 'message', 'header', 'body' ]
 
 module.exports = (routes, opts) => {
-  // if (opts.debug) console.info('cache options:', routes, opts)
+  if (opts.debug) console.info('cache options:', routes, opts)
 
   opts.expireOpts = new Map()
   opts.defaultTimeout = 5000
