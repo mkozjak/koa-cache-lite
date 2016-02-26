@@ -118,15 +118,15 @@ module.exports = (routes, opts) => {
       if (!routeKeysLength) return yield next;
 
       // create key
-      let requestKey = this.request.url
+      let requestKey = this.request.path
 
-      // first pass - exact match
       for (let i = 0; i < routeKeysLength; i++) {
         let key = routeKeys[i]
 
-        if (key === this.request.url) {
+        // first pass - exact match
+        if (key === this.request.path) {
           if (opts.debug)
-            console.info('matched route:', this.request.url, routes[routeKeys[i]].regex)
+            console.info('exact matched route:', this.request.path)
 
           if (routes[key].cacheKeyArgs)
             requestKey = yield setRequestKey(requestKey, key, this.request)
@@ -136,25 +136,22 @@ module.exports = (routes, opts) => {
 
           break
         }
-      }
+        else if (!routes[routeKeys[i]].regex) continue
 
-      // second pass - regex match
-      for (let i = 0; i < routeKeysLength; i++) {
-        let key = routeKeys[i]
+        // second pass - regex match
+        else {
+          if (routes[routeKeys[i]].regex.test(this.request.path)) {
+            if (opts.debug)
+              console.info('regex matched route:', this.request.url, routes[routeKeys[i]].regex)
 
-        if (!routes[routeKeys[i]].regex) continue
+            if (routes[key].cacheKeyArgs)
+              requestKey = yield setRequestKey(requestKey, key, this.request)
 
-        if (routes[routeKeys[i]].regex.test(this.request.url)) {
-          if (opts.debug)
-            console.info('matched route:', this.request.url, routes[routeKeys[i]].regex)
+            let ok = yield setExpires(i, requestKey)
+            if (!ok) return yield next
 
-          if (routes[key].cacheKeyArgs)
-            requestKey = yield setRequestKey(requestKey, key, this.request)
-
-          let ok = yield setExpires(i, requestKey)
-          if (!ok) return yield next
-
-          break
+            break
+          }
         }
 
         if (i === routeKeys.length - 1) return yield next
