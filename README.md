@@ -75,7 +75,7 @@ The debug mode can be enabled (console is used for debugging).
 Routes {Object}:
 
 * `key`: `{String}` A string value consisting of optional parameter placeholders used to match the route for caching.
-For example, one can have multiple colon placeholders throughout the url to flag the dynamic parts or it and one asterisk to match everything with and after the given string.
+For example, one can have multiple colon placeholders throughout the url to flag the dynamic parts of it and one asterisk to match everything with and after the given string.
 
 ```js
 cache({
