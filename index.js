@@ -118,18 +118,18 @@ module.exports = (routes, opts) => {
       if (!routeKeysLength) return yield next;
 
       // create key
-      let requestKey = this.request.path
+      let cacheKey, requestKey = this.request.path
 
       for (let i = 0; i < routeKeysLength; i++) {
-        let key = routeKeys[i]
+        cacheKey = routeKeys[i]
 
         // first pass - exact match
-        if (key === this.request.path) {
+        if (cacheKey === this.request.path) {
           if (opts.debug)
             console.info('exact matched route:', this.request.path)
 
-          if (routes[key].cacheKeyArgs)
-            requestKey = yield setRequestKey(requestKey, key, this.request)
+          if (routes[cacheKey].cacheKeyArgs)
+            requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
 
           let ok = yield setExpires(i, requestKey)
           if (!ok) return yield next
@@ -143,8 +143,8 @@ module.exports = (routes, opts) => {
           if (opts.debug)
             console.info('regex matched route:', this.request.url, routes[routeKeys[i]].regex)
 
-          if (routes[key].cacheKeyArgs)
-            requestKey = yield setRequestKey(requestKey, key, this.request)
+          if (routes[cacheKey].cacheKeyArgs)
+            requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
 
           let ok = yield setExpires(i, requestKey)
           if (!ok) return yield next
@@ -162,7 +162,7 @@ module.exports = (routes, opts) => {
       }
 
       // check if HTTP methods other than GET are sent and invalidate cache if true
-      if (this.request.method != 'GET') {
+      if (this.request.method !== 'GET') {
         for (let i = 0; i < routeKeysLength; i++) {
           let key = routeKeys[i]
 
@@ -176,7 +176,11 @@ module.exports = (routes, opts) => {
       // return cached response
       let requestKeyHeaders, requestKeyBody
 
-      if (undefined !== typeof opts.cacheKeyPrefix) {
+      if ('undefined' !== typeof routes[cacheKey].cacheKeyPrefix) {
+        requestKeyHeaders = routes[cacheKey].cacheKeyPrefix + ':' + requestKey + ':headers'
+        requestKeyBody = routes[cacheKey].cacheKeyPrefix + ':' + requestKey + ':body'
+      }
+      else if ('undefined' !== typeof opts.cacheKeyPrefix) {
         requestKeyHeaders = opts.cacheKeyPrefix + ':' + requestKey + ':headers'
         requestKeyBody = opts.cacheKeyPrefix + ':' + requestKey + ':body'
       }
