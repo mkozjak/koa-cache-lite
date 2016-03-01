@@ -174,17 +174,18 @@ module.exports = (routes, opts) => {
       }
 
       // return cached response
-      let exists = yield store.has(requestKey)
+      let exists = yield store.has(requestKey + ':headers')
 
       if (exists) {
-        let item = yield store.get(requestKey)
+        let headers = yield store.get(requestKey + ':headers')
+        let body = yield store.get(requestKey + ':body')
 
-        if ('string' === typeof(item)) item = JSON.parse(item)
+        if ('string' === typeof(headers)) headers = JSON.parse(headers)
         if (opts.debug) console.info('returning from cache for url', requestKey)
 
-        for (let key in item) {
+        for (let key in headers) {
           if (key === 'header') {
-            let value = item[key]
+            let value = headers[key]
 
             for (let hkey in value) {
               this.set(hkey, value[hkey])
@@ -193,8 +194,10 @@ module.exports = (routes, opts) => {
             continue
           }
 
-          this[key] = item[key]
+          this[key] = headers[key]
         }
+
+        if (body) this['body'] = body
 
         return
       }
@@ -202,17 +205,26 @@ module.exports = (routes, opts) => {
       // call next middleware and cache response on return
       yield next
 
-      let _response = new Object()
+      let _response_body, _response_headers = new Object()
 
       for (let key in this.response) {
-        if (responseKeys.indexOf(key) != -1)
-          _response[key] = this.response[key]
+        if (key === 'body') continue
+
+        if (responseKeys.indexOf(key) !== -1)
+          _response_headers[key] = this.response[key]
       }
+
+      if (this.response.body)
+        _response_body = this.response.body
 
       if (opts.debug) console.info('caching', requestKey)
 
       // set new caching entry
-      store.set(requestKey, _response)
+      let storeRequest = {}
+      storeRequest[requestKey + ':headers'] = JSON.stringify(_response_headers)
+      storeRequest[requestKey + ':body'] = _response_body
+
+      store.setMultiple(requestKey, storeRequest)
     }
     catch (error) {
       if (opts.debug) console.error(error)
