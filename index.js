@@ -174,11 +174,21 @@ module.exports = (routes, opts) => {
       }
 
       // return cached response
-      let exists = yield store.has(requestKey + ':headers')
+      let requestKeyHeaders, requestKeyBody
+
+      if (undefined !== typeof opts.cacheKeyPrefix) {
+        requestKeyHeaders = opts.cacheKeyPrefix + ':' + requestKey + ':headers'
+        requestKeyBody = opts.cacheKeyPrefix + ':' + requestKey + ':body'
+      }
+      else {
+        requestKeyHeaders = requestKey + ':headers'
+        requestKeyBody = requestKey + ':body'
+      }
+
+      let exists = yield store.has(requestKeyHeaders)
 
       if (exists) {
-        let headers = yield store.get(requestKey + ':headers')
-        let body = yield store.get(requestKey + ':body')
+        let body, headers = yield store.get(requestKeyHeaders)
 
         if ('string' === typeof(headers)) headers = JSON.parse(headers)
         if (opts.debug) console.info('returning from cache for url', requestKey)
@@ -197,8 +207,12 @@ module.exports = (routes, opts) => {
           this[key] = headers[key]
         }
 
-        if (body) this['body'] = body
+        if (this.type === 'application/octet-stream' || this.type.indexOf('image/' !== -1))
+          body = yield store.getBuffer(requestKeyBody)
+        else
+          body = yield store.get(requestKeyBody)
 
+        if (body) this['body'] = body
         return
       }
 
@@ -221,8 +235,8 @@ module.exports = (routes, opts) => {
 
       // set new caching entry
       let storeRequest = {}
-      storeRequest[requestKey + ':headers'] = JSON.stringify(_response_headers)
-      storeRequest[requestKey + ':body'] = _response_body
+      storeRequest[requestKeyHeaders] = JSON.stringify(_response_headers)
+      storeRequest[requestKeyBody] = _response_body
 
       store.setMultiple(requestKey, storeRequest)
     }
