@@ -125,5 +125,6 @@ Options {Object}:
 * `port`: `{Number}` If `type` is 'redis', the port used to connect to.
 * `increasing`: `{Object}` An object consisting of api calls per minute cache timeout increase.
 * `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
+* `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
 * `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
 
