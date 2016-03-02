@@ -91,7 +91,7 @@ routes {Object}:
 For example, one can have multiple colon placeholders throughout the url to flag the dynamic parts of it and one asterisk to match everything with and after the given string.
 
 ```js
-cache({
+cache.options({
   ...
   routes: {
     {String}: {String|Number|Boolean}
@@ -99,7 +99,7 @@ cache({
 })
 
 // or
-cache({
+cache.options({
   ...
   routes: {
     {String}: {
@@ -113,7 +113,7 @@ cache({
 })
 
 // in example
-cache({
+cache.options({
   ...
   routes: {
 
@@ -144,3 +144,7 @@ options {Object}:
 ### cache.middleware() -> Generator
 
 Start the caching process and returns a generator which can be used in conjunction with koa.use().
+
+```js
+koa.use(cache.middleware())
+```
