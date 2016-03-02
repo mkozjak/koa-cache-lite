@@ -5,6 +5,16 @@
 
 Zero-dependency koa router cache
 
+## News
+
+*important* Breaking API changes were made since version 3.x
+
+Once included, the library now returns the 'options' and 'middleware' methods.
+
+'options' is used to configure caching, and 'middleware' to get the generator which can be used with koa.use()
+
+See below for API details and examples.
+
 ## Installation
 
 Locally in your project or globally:
@@ -23,14 +33,14 @@ var cache = require('koa-cache-lite')
 var koa = require('koa')()
 
 // use in-memory cache
-koa.use(cache({
+cache.options({
   '/api/v1/test': 3000
 }, {
   debug: true
-}))
+})
 
 // or redis (install ioredis manually with npm install ioredis)
-koa.use(cache({
+cache.options({
   '/api/v1/test': 3000
 }, {
   external: {
@@ -39,10 +49,10 @@ koa.use(cache({
     port: 6379
   },
   debug: true
-}))
+})
 
 // use increasing cache timeout and customize cache key
-koa.use(cache({
+cache.options({
     '/api/v1/test': 'increasing'
   }, {
     increasing: {
@@ -53,16 +63,15 @@ koa.use(cache({
     },
     keyFragment: 'cache', // header field containing cache key appendix
     debug: true
-}))
+})
+
+// start caching
+koa.use(cache.middleware())
 
 koa.listen(1337)
 ```
 
 ## API
-
-```js
-cache(routes, options)
-```
 
 koa-cache-lite accepts two arguments.  
 
@@ -72,7 +81,11 @@ First one is an object consisting of routes and the second one is an options obj
 and 'cacheKeyArgs' where additional internal labeling values can be defined to customize the cache key.  
 The debug mode can be enabled (console is used for debugging).
 
-Routes {Object}:
+### cache.options(routes, options)
+
+Sets various caching options regarding urls, internal cache keys, debug mode and more.
+
+routes {Object}:
 
 * `key`: `{String}` A string value consisting of optional parameter placeholders used to match the route for caching.
 For example, one can have multiple colon placeholders throughout the url to flag the dynamic parts of it and one asterisk to match everything with and after the given string.
@@ -118,7 +131,7 @@ cache({
 })
 ```
 
-Options {Object}:
+options {Object}:
 
 * `type`: `{String}` Type of caching system used. Can be 'memory' or 'redis' (in which case you need to install ioredis manually).
 * `host`: `{String}` If `type` is 'redis', the address used to connect to.
@@ -128,3 +141,6 @@ Options {Object}:
 * `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
 * `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
 
+### cache.middleware() -> Generator
+
+Start the caching process and returns a generator which can be used in conjunction with koa.use().
