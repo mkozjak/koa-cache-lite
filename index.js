@@ -8,6 +8,8 @@ class Cache {
     if (options.debug) console.info('cache options:', options)
     this.routes = routes
     this.options = options
+
+    return this
   }
 
   middleware() {
