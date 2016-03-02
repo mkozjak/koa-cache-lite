@@ -7,7 +7,7 @@ Zero-dependency koa router cache
 
 ## News
 
-*important* Breaking API changes were made since version 3.x
+**important** Breaking API changes were made since version 3.x
 
 Once included, the library now returns the 'options' and 'middleware' methods.
 
