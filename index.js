@@ -174,7 +174,7 @@ class Cache {
             let key = routeKeys[i]
 
             if (requestKey.indexOf(key) != -1) {
-              that.store.delete(requestKey)
+              that.store.remove(requestKey)
             }
           }
           return yield next
