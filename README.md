@@ -170,3 +170,7 @@ cache.clear()
 // or only /api/v1/users
 cache.clear('/api/v1/users')
 ```
+
+### cache.currentCacheType -> String
+
+Returns a type of caching system currently used.
