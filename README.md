@@ -81,7 +81,7 @@ First one is an object consisting of routes and the second one is an options obj
 and 'cacheKeyArgs' where additional internal labeling values can be defined to customize the cache key.  
 The debug mode can be enabled (console is used for debugging).
 
-### cache.options(routes, options)
+### cache.options(routes[, options])
 
 Sets various caching options regarding urls, internal cache keys, debug mode and more.
 
@@ -149,7 +149,7 @@ Start the caching process and returns a generator which can be used in conjuncti
 koa.use(cache.middleware())
 ```
 
-### cache.clear(keys)
+### cache.clear([keys])
 
 Clear cache entries individually or all of them. If 'keys' is not provided it clears all the keys based on cacheKeyPrefix if defined.
 
