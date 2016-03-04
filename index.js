@@ -330,6 +330,15 @@ class Cache {
   }
 
   * clear(keys) {
+    if (!keys) {
+      if (this.options.cacheKeyPrefix)
+        yield this.store.remove(this.options.cacheKeyPrefix + '*')
+      else
+        yield this.store.remove()
+
+      return
+    }
+
     yield this.store.remove(keys)
   }
 }
