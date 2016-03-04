@@ -12,9 +12,7 @@ class Cache {
     return this
   }
 
-  middleware() {
-    var that = this
-
+  init() {
     this.options.expireOpts = new Map()
     this.defaultTimeout = 5000
     this.store = new Store(this.options)
@@ -80,8 +78,8 @@ class Cache {
       }
     }
 
-    let routeKeys = Object.keys(this.routes)
-    let routeKeysLength = routeKeys.length
+    this.routeKeys = Object.keys(this.routes)
+    this.routeKeysLength = this.routeKeys.length
 
     // set default increasing options if not defined
     if (this.callCnt) {
@@ -120,17 +118,23 @@ class Cache {
         this.callCnt = new Map()
       }, 60000)
     }
+  }
+
+  middleware() {
+    var that = this
+
+    if (!this.store) this.init()
 
     return function *(next) {
       try {
         // check if route is permitted to be cached FIXME?
-        if (!routeKeysLength) return yield next;
+        if (!that.routeKeysLength) return yield next;
 
         // create key
         let cacheKey, requestKey = this.request.path
 
-        for (let i = 0; i < routeKeysLength; i++) {
-          cacheKey = routeKeys[i]
+        for (let i = 0; i < that.routeKeysLength; i++) {
+          cacheKey = that.routeKeys[i]
 
           // first pass - exact match
           if (cacheKey === this.request.path) {
@@ -145,12 +149,12 @@ class Cache {
 
             break
           }
-          else if (!that.routes[routeKeys[i]].regex) continue
+          else if (!that.routes[that.routeKeys[i]].regex) continue
 
           // second pass - regex match
-          else if (that.routes[routeKeys[i]].regex.test(this.request.path)) {
+          else if (that.routes[that.routeKeys[i]].regex.test(this.request.path)) {
             if (that.options.debug)
-              console.info('regex matched route:', this.request.url, that.routes[routeKeys[i]].regex)
+              console.info('regex matched route:', this.request.url, that.routes[that.routeKeys[i]].regex)
 
             if (that.routes[cacheKey].cacheKeyArgs)
               requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
@@ -161,7 +165,7 @@ class Cache {
             break
           }
 
-          if (i === routeKeys.length - 1) return yield next
+          if (i === that.routeKeys.length - 1) return yield next
           else continue
         }
 
@@ -172,8 +176,8 @@ class Cache {
 
         // check if HTTP methods other than GET are sent and invalidate cache if true
         if (this.request.method !== 'GET') {
-          for (let i = 0; i < routeKeysLength; i++) {
-            let key = routeKeys[i]
+          for (let i = 0; i < that.routeKeysLength; i++) {
+            let key = that.routeKeys[i]
 
             if (requestKey.indexOf(key) != -1) {
               that.store.remove(requestKey)
@@ -329,17 +333,17 @@ class Cache {
     }
   }
 
-  * clear(keys) {
+  clear(keys) {
     if (!keys) {
       if (this.options.cacheKeyPrefix)
-        yield this.store.remove(this.options.cacheKeyPrefix + '*')
+        this.store.remove(this.options.cacheKeyPrefix + '*')
       else
-        yield this.store.remove()
+        this.store.remove()
 
       return
     }
 
-    yield this.store.remove(keys)
+    this.store.remove(keys)
   }
 }
 
