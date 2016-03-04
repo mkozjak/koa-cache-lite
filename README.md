@@ -81,7 +81,7 @@ First one is an object consisting of routes and the second one is an options obj
 and 'cacheKeyArgs' where additional internal labeling values can be defined to customize the cache key.  
 The debug mode can be enabled (console is used for debugging).
 
-### cache.options(routes[, options])
+### cache.options(routes[, options]) -> Class
 
 Sets various caching options regarding urls, internal cache keys, debug mode and more.
 
@@ -140,6 +140,16 @@ options {Object}:
 * `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
 * `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
 * `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
+
+### cache.init() -> Class
+
+Start the caching process. This method should only be used when different contexts throughout your application are used.
+In example, when using the 'cluster' module, you should use `cache.init()` in master and send a wrapped `cache.clear()` function
+to worker processes so you can use the Cache instance.
+
+```js
+cache.init()
+```
 
 ### cache.middleware() -> Generator
 
