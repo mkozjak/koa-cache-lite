@@ -347,6 +347,10 @@ class Cache {
 
     this.store.remove(keys)
   }
+
+  currentCacheType() {
+    return this.store.storeType()
+  }
 }
 
 module.exports = new Cache()
