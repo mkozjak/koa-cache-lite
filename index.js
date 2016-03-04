@@ -338,14 +338,17 @@ class Cache {
   clear(keys) {
     if (!keys) {
       if (this.options.cacheKeyPrefix)
-        this.store.remove(this.options.cacheKeyPrefix + '*')
+        this.store.remove(this.options.cacheKeyPrefix + ':*')
       else
         this.store.remove()
 
       return
     }
 
-    this.store.remove(keys)
+    if (this.options.cacheKeyPrefix)
+      this.store.remove(this.options.cacheKeyPrefix + ':' + keys)
+    else
+      this.store.remove(keys)
   }
 
   currentCacheType() {
