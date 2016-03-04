@@ -328,6 +328,10 @@ class Cache {
       return requestKey
     }
   }
+
+  * clear(keys) {
+    yield this.store.remove(keys)
+  }
 }
 
 module.exports = new Cache()
