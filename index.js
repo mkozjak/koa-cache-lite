@@ -93,9 +93,9 @@ class Cache {
         }
       }
 
-      var cntStep = Object.keys(this.options.increasing)
+      this.cntStep = Object.keys(this.options.increasing)
 
-      for (let key of cntStep) {
+      for (let key of this.cntStep) {
         if (typeof this.options.increasing[key] === 'string') {
           if (this.options.increasing[key].search(/[0-9]+s$/) !== -1)
             this.options.increasing[key] = Number(this.options.increasing[key].replace('s', '')) * 1000
@@ -264,7 +264,7 @@ class Cache {
     }
 
     function *setExpires(routeKeysIndex, requestKey) {
-      let routeExpire = that.routes[routeKeys[routeKeysIndex]].timeout
+      let routeExpire = that.routes[that.routeKeys[routeKeysIndex]].timeout
 
       if (routeExpire === false) {
         return false
@@ -278,18 +278,18 @@ class Cache {
         if (count) {
           count = that.callCnt.get(requestKey) + 1
           that.callCnt.set(requestKey, count)
-          let steps = cntStep.length
+          let steps = that.cntStep.length
 
           for (let i = 0; i < steps; i++) {
-            if (count === cntStep[i]) {
-              that.options.expireOpts.set(requestKey, that.options.increasing[cntStep[i]])
+            if (count === that.cntStep[i]) {
+              that.options.expireOpts.set(requestKey, that.options.increasing[that.cntStep[i]])
               break
             }
           }
         }
         else {
           that.callCnt.set(requestKey, 1)
-          that.options.expireOpts.set(requestKey, that.options.increasing[cntStep[0]])
+          that.options.expireOpts.set(requestKey, that.options.increasing[that.cntStep[0]])
         }
       }
       else that.options.expireOpts.set(requestKey, routeExpire)
