@@ -118,6 +118,8 @@ class Cache {
         this.callCnt = new Map()
       }, 60000)
     }
+
+    return this
   }
 
   middleware() {
