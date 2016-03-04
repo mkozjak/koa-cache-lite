@@ -148,3 +148,15 @@ Start the caching process and returns a generator which can be used in conjuncti
 ```js
 koa.use(cache.middleware())
 ```
+
+### cache.clear(keys)
+
+Clear cache entries individually or all of them. If 'keys' is not provided it clears all the keys based on cacheKeyPrefix if defined.
+
+```js
+// clear all keys (based on cacheKeyPrefix)
+cache.clear()
+
+// or only /api/v1/users
+cache.clear('/api/v1/users')
+```
