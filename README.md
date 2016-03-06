@@ -9,9 +9,16 @@ Zero-dependency koa router cache
 
 **important** Breaking API changes were made since version 3.x
 
-Once included, the library now returns the 'options' and 'middleware' methods.
+Once included, the library now returns the 'configure', 'init', 'middleware', 'clear' and 'currentCacheType' methods.
 
-'options' is used to configure caching, and 'middleware' to get the generator which can be used with koa.use()
+'configure' is used to configure caching, and 'middleware' to get the generator which can be used with koa.use().
+
+'init' is an optional method for the initialization of the caching process.
+This is a convenience method used, for example, in a 'cluster' environment,
+where you would send a wrapped 'middleware' function to be able to, in example, clear cache from the worker,
+even though the cache was initialized in the master process.
+
+'clear' can be used to clear the cache and 'currentCacheType' to get the currently used caching system.
 
 See below for API details and examples.
 
@@ -33,14 +40,14 @@ var cache = require('koa-cache-lite')
 var koa = require('koa')()
 
 // use in-memory cache
-cache.options({
+cache.configure({
   '/api/v1/test': 3000
 }, {
   debug: true
 })
 
 // or redis (install ioredis manually with npm install ioredis)
-cache.options({
+cache.configure({
   '/api/v1/test': 3000
 }, {
   external: {
@@ -52,7 +59,7 @@ cache.options({
 })
 
 // use increasing cache timeout and customize cache key
-cache.options({
+cache.configure({
     '/api/v1/test': 'increasing'
   }, {
     increasing: {
@@ -81,7 +88,7 @@ First one is an object consisting of routes and the second one is an options obj
 and 'cacheKeyArgs' where additional internal labeling values can be defined to customize the cache key.  
 The debug mode can be enabled (console is used for debugging).
 
-### cache.options(routes[, options]) -> Class
+### cache.configure(routes[, options]) -> Class
 
 Sets various caching options regarding urls, internal cache keys, debug mode and more.
 
@@ -91,7 +98,7 @@ routes {Object}:
 For example, one can have multiple colon placeholders throughout the url to flag the dynamic parts of it and one asterisk to match everything with and after the given string.
 
 ```js
-cache.options({
+cache.configure({
   ...
   routes: {
     {String}: {String|Number|Boolean}
@@ -99,7 +106,7 @@ cache.options({
 })
 
 // or
-cache.options({
+cache.configure({
   ...
   routes: {
     {String}: {
@@ -113,7 +120,7 @@ cache.options({
 })
 
 // in example
-cache.options({
+cache.configure({
   ...
   routes: {
 
