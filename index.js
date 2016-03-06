@@ -4,7 +4,7 @@ var Store = require('./lib/store')
 var responseKeys = [ 'status', 'message', 'header', 'body' ]
 
 class Cache {
-  options(routes, options) {
+  configure(routes, options) {
     if (options.debug) console.info('cache options:', options)
     this.routes = routes
     this.options = options
@@ -13,6 +13,12 @@ class Cache {
   }
 
   init() {
+    if (!this.routes)
+      this.routes = { '*': 'increasing' }
+
+    if (!this.options)
+      this.options = {}
+
     this.options.expireOpts = new Map()
     this.defaultTimeout = 5000
     this.store = new Store(this.options)
