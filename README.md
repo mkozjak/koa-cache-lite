@@ -153,7 +153,7 @@ cache.init()
 
 ### cache.middleware() -> Generator
 
-Start the caching process and returns a generator which can be used in conjunction with koa.use().
+Starts the caching process and returns a generator which can be used in conjunction with koa.use().
 
 ```js
 koa.use(cache.middleware())
