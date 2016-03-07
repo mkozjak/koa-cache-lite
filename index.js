@@ -91,11 +91,11 @@ class Cache {
     if (this.callCnt) {
       if (this.options.increasing === undefined) {
         this.options.increasing = {
-          1: 1000,
-          3: 2000,
-          10: 3000,
-          20: 4000,
-          50: 5000
+          1: 5000,
+          3: 15000,
+          10: 30000,
+          20: 60000,
+          50: 120000
         }
       }
 
