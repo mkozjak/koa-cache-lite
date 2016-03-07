@@ -28,7 +28,11 @@ class Cache {
       if (typeof this.routes[key] !== 'object'
         && typeof this.routes[key] !== 'boolean'
         && this.routes[key] !== 'increasing'
-        && isNaN(this.routes[key])) {
+        && () => {
+          console.log('checking', key)
+          this.routes[key] = this._normalizeTime(this.routes[key])
+          return this.routes[key]
+        }() instanceof Error) {
 
         if (this.options.debug) console.info('invalid value for key', key)
 
@@ -75,13 +79,14 @@ class Cache {
           .replace(/^\//, '^\/')
           .replace(/$/, '(?:\/)?$')
           .replace(/\//g, '\\/'))
-
       }
 
       if (key.indexOf('*') !== -1) {
         this.routes[key]['regex'] = new RegExp(
           key.replace('*', '.*'))
       }
+
+      console.log("#######", this.routes[key])
     }
 
     this.routeKeys = Object.keys(this.routes)
@@ -103,18 +108,14 @@ class Cache {
 
       for (let key of this.cntStep) {
         if (typeof this.options.increasing[key] === 'string') {
-          if (this.options.increasing[key].search(/[0-9]+s$/) !== -1)
-            this.options.increasing[key] = Number(this.options.increasing[key].replace('s', '')) * 1000
-          else if (this.options.increasing[key].search(/[0-9]+m$/) !== -1)
-            this.options.increasing[key] = Number(this.options.increasing[key].replace('m', '')) * 60000
-          else if (this.options.increasing[key].search(/[0-9]+h$/) !== -1)
-            this.options.increasing[key] = Number(this.options.increasing[key].replace('h', '')) * 60000 * 60
-          else if (this.options.increasing[key].search(/[0-9]+d$/) !== -1)
-            this.options.increasing[key] = Number(this.options.increasing[key].replace('d', '')) * 60000 * 60 * 24
-          else {
-            if (this.options.debug) console.info('increasing timeout value invalid:', this.options.increasing[key])
-            delete this.options.increasing[key]
+          let time = this._normalizeTime(this.options.increasing[key])
+
+          if (time instanceof Error) {
+            if (this.options.debug)
+              console.info('increasing timeout value invalid:', time.toString())
           }
+
+          this.options.increasing[key] = time
         }
       }
 
@@ -130,6 +131,7 @@ class Cache {
 
   middleware() {
     var that = this
+    console.log('##################', this.routes)
 
     if (!this.store) this.init()
 
@@ -359,6 +361,22 @@ class Cache {
 
   currentCacheType() {
     return this.store.storeType()
+  }
+
+  _normalizeTime(value) {
+    if (!isNaN(value))
+      return value
+
+    if (value.search(/[0-9]+s$/) !== -1)
+      return Number(value.replace('s', '')) * 1000
+    else if (value.search(/[0-9]+m$/) !== -1)
+      return Number(value.replace('m', '')) * 60000
+    else if (value.search(/[0-9]+h$/) !== -1)
+      return Number(value.replace('h', '')) * 60000 * 60
+    else if (value.search(/[0-9]+d$/) !== -1)
+      return Number(value.replace('d', '')) * 60000 * 60 * 24
+    else
+      return new Error('invalid value')
   }
 }
 
