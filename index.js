@@ -6,14 +6,20 @@ const responseKeys = [ 'status', 'message', 'header', 'body' ]
 class Cache {
   configure(routes, options) {
     if (options.debug) {
-      const util = require('util')
-
-      options._debug = function() {
-        process.stdout.write((new Date).toISOString() + ' ' + util.format.apply(null, arguments) + '\n')
+      if (options.logging && options.logging instanceof Function) {
+        options._debug = options.logging
       }
+      else {
+        const util = require('util')
+
+        options._debug = function() {
+          process.stdout.write((new Date).toISOString() + ' ' + util.format.apply(null, arguments) + '\n')
+        }
+      }
+
+      options._debug('cache options:', options)
     }
 
-    if (options.debug) options._debug('cache options:', options)
     this.routes = routes
     this.options = options
 
