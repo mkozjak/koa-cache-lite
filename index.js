@@ -1,7 +1,7 @@
 'use strict'
 
-var Store = require('./lib/store')
-var responseKeys = [ 'status', 'message', 'header', 'body' ]
+const Store = require('./lib/store')
+const responseKeys = [ 'status', 'message', 'header', 'body' ]
 
 class Cache {
   configure(routes, options) {
