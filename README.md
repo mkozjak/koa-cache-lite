@@ -147,6 +147,7 @@ options {Object}:
 * `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
 * `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
 * `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
+* `logging`: `{Function}` External logging function to be used for debugging.
 
 ### cache.init() -> Class
 
