@@ -5,7 +5,15 @@ var responseKeys = [ 'status', 'message', 'header', 'body' ]
 
 class Cache {
   configure(routes, options) {
-    if (options.debug) console.info('cache options:', options)
+    if (options.debug) {
+      const util = require('util')
+
+      options._debug = function() {
+        process.stdout.write((new Date).toISOString() + ' ' + util.format.apply(null, arguments) + '\n')
+      }
+    }
+
+    if (options.debug) options._debug('cache options:', options)
     this.routes = routes
     this.options = options
 
@@ -30,7 +38,7 @@ class Cache {
         && this.routes[key] !== 'increasing'
         && isNaN(this.routes[key])) {
 
-        if (this.options.debug) console.info('invalid value for key', key)
+        if (this.options.debug) this.options._debug('invalid value for key', key)
 
         delete this.routes[key]
         continue
@@ -49,7 +57,7 @@ class Cache {
       }
 
       if (this.routes[key].cacheKeyArgs instanceof Array) {
-        if (this.options.debug) console.info('cacheKeyArgs of array type not supported:', key)
+        if (this.options.debug) this.options._debug('cacheKeyArgs of array type not supported:', key)
         delete this.routes[key]
         continue
       }
@@ -112,7 +120,7 @@ class Cache {
           else if (this.options.increasing[key].search(/[0-9]+d$/) !== -1)
             this.options.increasing[key] = Number(this.options.increasing[key].replace('d', '')) * 60000 * 60 * 24
           else {
-            if (this.options.debug) console.info('increasing timeout value invalid:', this.options.increasing[key])
+            if (this.options.debug) this.options._debug('increasing timeout value invalid:', this.options.increasing[key])
             delete this.options.increasing[key]
           }
         }
@@ -120,7 +128,7 @@ class Cache {
 
       // clear call hit counter every minute
       setInterval(() => {
-        if (this.options.debug) console.info('clearing call hit counter')
+        if (this.options.debug) this.options._debug('clearing call hit counter')
         this.callCnt = new Map()
       }, 60000)
     }
@@ -147,7 +155,7 @@ class Cache {
           // first pass - exact match
           if (cacheKey === this.request.path) {
             if (that.options.debug)
-              console.info('exact matched route:', this.request.path)
+              that.options._debug('exact matched route:', this.request.path)
 
             if (that.routes[cacheKey].cacheKeyArgs)
               requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
@@ -162,7 +170,7 @@ class Cache {
           // second pass - regex match
           else if (that.routes[that.routeKeys[i]].regex.test(this.request.path)) {
             if (that.options.debug)
-              console.info('regex matched route:', this.request.url, that.routes[that.routeKeys[i]].regex)
+              that.options._debug('regex matched route:', this.request.url, that.routes[that.routeKeys[i]].regex)
 
             if (that.routes[cacheKey].cacheKeyArgs)
               requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
@@ -216,7 +224,7 @@ class Cache {
           let body, headers = yield that.store.get(requestKeyHeaders)
 
           if ('string' === typeof(headers)) headers = JSON.parse(headers)
-          if (that.options.debug) console.info('returning from cache for url', requestKey)
+          if (that.options.debug) that.options._debug('returning from cache for url', requestKey)
 
           for (let key in headers) {
             if (key === 'header') {
@@ -256,7 +264,7 @@ class Cache {
         if (this.response.body)
           _response_body = this.response.body
 
-        if (that.options.debug) console.info('caching', requestKey)
+        if (that.options.debug) that.options._debug('caching', requestKey)
 
         // set new caching entry
         let storeRequest = {}
