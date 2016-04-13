@@ -366,7 +366,7 @@ class Cache {
     }
 
     if (this.options.cacheKeyPrefix)
-      this.store.remove(this.options.cacheKeyPrefix + ':' + keys)
+      this.store.remove(this.options.cacheKeyPrefix + ':' + keys + '*')
     else
       this.store.remove(keys)
   }
