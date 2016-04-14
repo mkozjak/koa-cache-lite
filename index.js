@@ -2,6 +2,7 @@
 
 const Store = require('./lib/store')
 const responseKeys = [ 'status', 'message', 'header', 'body' ]
+const querystring = require('querystring')
 
 class Cache {
   configure(routes, options) {
@@ -81,6 +82,12 @@ class Cache {
       if (this.routes[key].cacheKeyArgs && typeof this.routes[key].cacheKeyArgs.query === 'string') {
         this.routes[key].cacheKeyArgs.query = [ this.routes[key].cacheKeyArgs.query ]
       }
+
+      if (this.routes[key].cacheKeyArgs.headers instanceof Array)
+        this.routes[key].cacheKeyArgs.headers = this.routes[key].cacheKeyArgs.headers.sort()
+
+      if (this.routes[key].cacheKeyArgs.query instanceof Array)
+        this.routes[key].cacheKeyArgs.query = this.routes[key].cacheKeyArgs.query.sort()
 
       // parse caching route params
       if (key.indexOf(':') !== -1) {
@@ -166,6 +173,8 @@ class Cache {
             if (that.routes[cacheKey].cacheKeyArgs)
               requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
 
+            if (!requestKey) return yield next
+
             let ok = yield setExpires(i, requestKey)
             if (!ok) return yield next
 
@@ -180,6 +189,8 @@ class Cache {
 
             if (that.routes[cacheKey].cacheKeyArgs)
               requestKey = yield setRequestKey(requestKey, cacheKey, this.request)
+
+            if (!requestKey) return yield next
 
             let ok = yield setExpires(i, requestKey)
             if (!ok) return yield next
@@ -322,6 +333,19 @@ class Cache {
     function *setRequestKey(requestKey, routeKey, ctx) {
       // append specified http headers to requestKey
       if (that.routes[routeKey].cacheKeyArgs.headers instanceof Array) {
+        // if the header combination doesn't match, don't cache
+        let headerParams = Object.keys(ctx.header)
+
+        if (that.routes[routeKey].cacheKeyArgs.headers.length !== headerParams.length)
+          return false
+
+        headerParams = headerParams.sort()
+
+        for (let i in headerParams) {
+          if (headerParams[i] !== that.routes[routeKey].cacheKeyArgs.headers[i])
+            return false
+        }
+
         requestKey += '#'
 
         for (let name of that.routes[routeKey].cacheKeyArgs.headers) {
@@ -340,16 +364,26 @@ class Cache {
 
       // append specified http url query parameters to requestKey
       if (that.routes[routeKey].cacheKeyArgs.query instanceof Array) {
-        requestKey += '?'
+        // if the query combination doesn't match, don't cache
+        let queryParams = Object.keys(ctx.query)
 
-        for (let name of Object.keys(ctx.query)) {
-          requestKey += ctx.query[name]
+        if (that.routes[routeKey].cacheKeyArgs.query.length !== queryParams.length)
+          return false
+
+        queryParams = queryParams.sort()
+
+        for (let i in queryParams) {
+          if (queryParams[i] !== that.routes[routeKey].cacheKeyArgs.query[i])
+            return false
         }
+
+        requestKey += '?' + querystring.stringify(ctx.query)
       }
 
       // ...or append all http url query parameters to requestKey
-      else if (that.routes[routeKey].cacheKeyArgs.query === true)
+      else if (that.routes[routeKey].cacheKeyArgs.query === true) {
         requestKey += '?' + ctx.querystring
+      }
 
       return requestKey
     }
@@ -369,9 +403,10 @@ class Cache {
       this.store.remove([
         this.options.cacheKeyPrefix + ':' + keys,
         this.options.cacheKeyPrefix + ':' + keys + ':*',
-        this.options.cacheKeyPrefix + ':' + keys + '?*' ])
+        this.options.cacheKeyPrefix + ':' + keys + '?*',
+        this.options.cacheKeyPrefix + ':' + keys + '#*' ])
     else
-      this.store.remove([ keys, keys + ':*', keys + '?*' ])
+      this.store.remove([ keys, keys + ':*', keys + '?*', keys + '#*' ])
   }
 
   currentCacheType() {
