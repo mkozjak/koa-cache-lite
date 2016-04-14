@@ -83,11 +83,13 @@ class Cache {
         this.routes[key].cacheKeyArgs.query = [ this.routes[key].cacheKeyArgs.query ]
       }
 
-      if (this.routes[key].cacheKeyArgs.headers instanceof Array)
-        this.routes[key].cacheKeyArgs.headers = this.routes[key].cacheKeyArgs.headers.sort()
+      if (this.routes[key].cacheKeyArgs) {
+        if (this.routes[key].cacheKeyArgs.headers instanceof Array)
+          this.routes[key].cacheKeyArgs.headers = this.routes[key].cacheKeyArgs.headers.sort()
 
-      if (this.routes[key].cacheKeyArgs.query instanceof Array)
-        this.routes[key].cacheKeyArgs.query = this.routes[key].cacheKeyArgs.query.sort()
+        if (this.routes[key].cacheKeyArgs.query instanceof Array)
+          this.routes[key].cacheKeyArgs.query = this.routes[key].cacheKeyArgs.query.sort()
+      }
 
       // parse caching route params
       if (key.indexOf(':') !== -1) {
