@@ -69,26 +69,24 @@ class Cache {
         continue
       }
 
-      if (typeof this.routes[key].cacheKeyArgs === 'string') {
-        this.routes[key].cacheKeyArgs = {
-          custom: this.routes[key].cacheKeyArgs
-        }
-      }
-
-      if (this.routes[key].cacheKeyArgs && typeof this.routes[key].cacheKeyArgs.headers === 'string') {
-        this.routes[key].cacheKeyArgs.headers = [ this.routes[key].cacheKeyArgs.headers ]
-      }
-
-      if (this.routes[key].cacheKeyArgs && typeof this.routes[key].cacheKeyArgs.query === 'string') {
-        this.routes[key].cacheKeyArgs.query = [ this.routes[key].cacheKeyArgs.query ]
-      }
 
       if (this.routes[key].cacheKeyArgs) {
-        if (this.routes[key].cacheKeyArgs.headers instanceof Array)
-          this.routes[key].cacheKeyArgs.headers = this.routes[key].cacheKeyArgs.headers.sort()
+        if (typeof this.routes[key].cacheKeyArgs === 'string') {
+          this.routes[key].cacheKeyArgs = {
+            custom: this.routes[key].cacheKeyArgs
+          }
+        }
+        else {
+          if (typeof this.routes[key].cacheKeyArgs.headers === 'string')
+            this.routes[key].cacheKeyArgs.headers = [ this.routes[key].cacheKeyArgs.headers ]
+          else if (this.routes[key].cacheKeyArgs.headers instanceof Array)
+            this.routes[key].cacheKeyArgs.headers = this.routes[key].cacheKeyArgs.headers.sort()
 
-        if (this.routes[key].cacheKeyArgs.query instanceof Array)
-          this.routes[key].cacheKeyArgs.query = this.routes[key].cacheKeyArgs.query.sort()
+          if (typeof this.routes[key].cacheKeyArgs.query === 'string')
+            this.routes[key].cacheKeyArgs.query = [ this.routes[key].cacheKeyArgs.query ]
+          else if (this.routes[key].cacheKeyArgs.query instanceof Array)
+            this.routes[key].cacheKeyArgs.query = this.routes[key].cacheKeyArgs.query.sort()
+        }
       }
 
       // parse caching route params
