@@ -333,19 +333,6 @@ class Cache {
     function *setRequestKey(requestKey, routeKey, ctx) {
       // append specified http headers to requestKey
       if (that.routes[routeKey].cacheKeyArgs.headers instanceof Array) {
-        // if the header combination doesn't match, don't cache
-        let headerParams = Object.keys(ctx.header)
-
-        if (that.routes[routeKey].cacheKeyArgs.headers.length !== headerParams.length)
-          return false
-
-        headerParams = headerParams.sort()
-
-        for (let i in headerParams) {
-          if (headerParams[i] !== that.routes[routeKey].cacheKeyArgs.headers[i])
-            return false
-        }
-
         requestKey += '#'
 
         for (let name of that.routes[routeKey].cacheKeyArgs.headers) {
