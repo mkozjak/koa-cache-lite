@@ -14,7 +14,8 @@ class Cache {
         const util = require('util')
 
         options._debug = function() {
-          process.stdout.write((new Date).toISOString() + ' ' + util.format.apply(null, arguments) + '\n')
+          process.stdout.write((new Date).toISOString() + ' '
+            + util.format.apply(null, arguments) + '\n')
         }
       }
 
