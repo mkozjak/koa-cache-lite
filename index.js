@@ -270,6 +270,9 @@ class Cache {
         // call next middleware and cache response on return
         yield next
 
+        if (that.options.minimumSize > this.length)
+          return yield next
+
         let _response_body, _response_headers = new Object()
 
         for (let key in this.response) {

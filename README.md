@@ -146,6 +146,7 @@ options {Object}:
 * `increasing`: `{Object}` An object consisting of api calls per minute cache timeout increase.
 * `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
 * `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
+* `minimumSize`: `{Number}` Minimum http body size needed to cache the response.
 * `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
 * `logging`: `{Function}` External logging function to be used for debugging.
 
