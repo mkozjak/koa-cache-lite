@@ -140,9 +140,10 @@ cache.configure({
 
 options {Object}:
 
-* `type`: `{String}` Type of caching system used. Can be 'memory' or 'redis' (in which case you need to install ioredis manually).
-* `host`: `{String}` If `type` is 'redis', the address used to connect to.
-* `port`: `{Number}` If `type` is 'redis', the port used to connect to.
+* `external`: `{Object}` External storage database configuration.
+  * `type`: `{String}` Type of caching system used. Can be 'memory' or 'redis' (in which case you need to install ioredis manually).
+  * `host`: `{String}` If `type` is 'redis', the address used to connect to. Defaults to '127.0.0.1'.
+  * `port`: `{Number}` If `type` is 'redis', the port used to connect to. Defaults to 6379.
 * `increasing`: `{Object}` An object consisting of api calls per minute cache timeout increase.
 * `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
 * `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
