@@ -42,9 +42,9 @@ class Cache {
     for (let key of Object.keys(this.routes)) {
       // validate and reorganize route values
       if (typeof this.routes[key] !== 'object'
-        && typeof this.routes[key] !== 'boolean'
-        && this.routes[key] !== 'increasing'
-        && isNaN(this.routes[key])) {
+          && typeof this.routes[key] !== 'boolean'
+          && this.routes[key] !== 'increasing'
+          && isNaN(this.routes[key])) {
 
         if (this.options.debug) this.options._debug('invalid value for key', key)
 
@@ -61,7 +61,7 @@ class Cache {
           timeout: 'increasing'
         }
 
-        if (!this.callCnt) this.callCnt = new Map()
+        if (!this.callCount) this.callCount = new Map()
       }
 
       if (this.routes[key].cacheKeyArgs instanceof Array) {
@@ -69,7 +69,6 @@ class Cache {
         delete this.routes[key]
         continue
       }
-
 
       if (this.routes[key].cacheKeyArgs) {
         if (typeof this.routes[key].cacheKeyArgs === 'string') {
@@ -110,7 +109,7 @@ class Cache {
     this.routeKeysLength = this.routeKeys.length
 
     // set default increasing options if not defined
-    if (this.callCnt) {
+    if (this.callCount) {
       if (this.options.increasing === undefined) {
         this.options.increasing = {
           1: 5000,
@@ -143,7 +142,7 @@ class Cache {
       // clear call hit counter every minute
       setInterval(() => {
         if (this.options.debug) this.options._debug('clearing call hit counter')
-        this.callCnt = new Map()
+        this.callCount = new Map()
       }, 60000)
     }
 
@@ -310,11 +309,11 @@ class Cache {
       // override default timeout
       if (typeof routeExpire === 'boolean') routeExpire = that.options.defaultTimeout
       else if (routeExpire === 'increasing' && that.options.increasing) {
-        let count = that.callCnt.has(requestKey)
+        let count = that.callCount.has(requestKey)
 
         if (count) {
-          count = that.callCnt.get(requestKey) + 1
-          that.callCnt.set(requestKey, count)
+          count = that.callCount.get(requestKey) + 1
+          that.callCount.set(requestKey, count)
           let steps = that.cntStep.length
 
           for (let i = 0; i < steps; i++) {
@@ -325,7 +324,7 @@ class Cache {
           }
         }
         else {
-          that.callCnt.set(requestKey, 1)
+          that.callCount.set(requestKey, 1)
           that.options.expireOpts.set(requestKey, that.options.increasing[that.cntStep[0]])
         }
       }
