@@ -394,10 +394,10 @@ class Cache {
       this.store.remove([
         this.options.cacheKeyPrefix + ':' + keys,
         this.options.cacheKeyPrefix + ':' + keys + ':*',
-        this.options.cacheKeyPrefix + ':' + keys + '?*',
+        this.options.cacheKeyPrefix + ':' + keys + '\\?*',
         this.options.cacheKeyPrefix + ':' + keys + '#*' ])
     else
-      this.store.remove([ keys, keys + ':*', keys + '?*', keys + '#*' ])
+      this.store.remove([ keys, keys + ':*', keys + '\\?*', keys + '#*' ])
   }
 
   currentCacheType() {
