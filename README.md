@@ -172,6 +172,12 @@ koa.use(cache.middleware())
 ### cache.clear([keys])
 
 Clear cache entries individually or all of them. If 'keys' is not provided it clears all the keys based on cacheKeyPrefix if defined.
+It also supports glob-style patterns:
+* h?llo matches hello, hallo and hxllo
+* h*llo matches hllo and heeeello
+* h[ae]llo matches hello and hallo, but not hillo
+* h[^e]llo matches hallo, hbllo, ... but not hello
+* h[a-b]llo matches hallo and hbllo
 
 ```js
 // clear all keys (based on cacheKeyPrefix)
@@ -179,6 +185,9 @@ cache.clear()
 
 // or only /api/v1/users
 cache.clear('/api/v1/users')
+
+// or anything under '/api/v2'
+cache.clear('/api/v2/*')
 ```
 
 ### cache.currentCacheType() -> String
