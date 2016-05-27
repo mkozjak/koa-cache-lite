@@ -92,11 +92,10 @@ class Cache {
       // parse caching route params
       if (key.indexOf(':') !== -1) {
         this.routes[key]['regex'] = new RegExp(
-          key.replace(/:[A-z0-9]+/g, '[A-z0-9]+')
+          key.replace(/:[A-z0-9]+/g, '[A-z0-9\\$\\-_.+!*\'(),]+')
           .replace(/^\//, '^\/')
           .replace(/$/, '(?:\/)?$')
           .replace(/\//g, '\\/'))
-
       }
 
       if (key.indexOf('*') !== -1) {
