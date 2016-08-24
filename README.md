@@ -1,4 +1,5 @@
-[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/mkozjak/koa-cache-lite/blob/master/LICENSE)  
+[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/mkozjak/koa-cache-lite/blob/master/LICENSE)
+[![npm](https://img.shields.io/npm/dm/koa-cache-lite.svg?maxAge=2592000)](https://www.npmjs.com/package/koa-cache-lite)  
 [![NPM](https://nodei.co/npm/koa-cache-lite.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/koa-cache-lite/)
 
 # koa-cache-lite
