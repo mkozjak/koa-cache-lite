@@ -201,8 +201,8 @@ class Cache {
           else continue
         }
 
-        // check if no-cache is provided
-        if (this.request.header['cache-control'] === 'no-cache') {
+        // check if no-cache is provided (if not overridden)
+        if (that.options.ignoreNoCache !== true && this.request.header['cache-control'] === 'no-cache') {
           return yield next
         }
 
