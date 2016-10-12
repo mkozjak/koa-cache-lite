@@ -32,7 +32,7 @@ npm install koa-cache-lite
 npm install -g koa-cache-lite
 ```
 
-## Example usage
+## Usage example
 
 ```js
 'use strict'
