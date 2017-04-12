@@ -7,7 +7,7 @@
   },
   "version": "3.5.0",
   "main": "index.js",
-  "engines": { "iojs": ">= 2.1.0", "node": ">= 4.0.0." },
+  "engines": { "iojs": ">= 2.1.0", "node": ">= 4.0.0" },
   "license": "MIT",
   "repository": {
     "type": "git",
