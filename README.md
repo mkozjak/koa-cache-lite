@@ -10,7 +10,7 @@ Zero-dependency koa router cache
 
 **important** Breaking API changes were made since version 3.x
 
-Once included, the library now returns the 'configure', 'init', 'middleware', 'clear' and 'currentCacheType' methods.
+Once included, the library now returns the 'configure', 'init', 'middleware', 'exists', 'clear' and 'currentCacheType' methods.
 
 'configure' is used to configure caching, and 'middleware' to get the generator which can be used with koa.use().
 
@@ -170,6 +170,10 @@ Starts the caching process and returns a generator which can be used in conjunct
 ```js
 koa.use(cache.middleware())
 ```
+
+### cache.exists(key) -> Promise
+
+Check if cache for the given key exists.
 
 ### cache.clear([keys])
 
