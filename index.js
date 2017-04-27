@@ -378,6 +378,10 @@ class Cache {
     }
   }
 
+  exists(key) {
+    return this.store.has(key)
+  }
+
   clear(keys) {
     if (!keys) {
       if (this.options.cacheKeyPrefix)
