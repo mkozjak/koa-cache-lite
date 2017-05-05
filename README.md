@@ -149,6 +149,7 @@ options {Object}:
 * `cacheKeyArgs`: `{String}` Default cache key to be used internally by the library.
 * `cacheKeyPrefix`: `{String}` Cache key prefix for storing.
 * `minimumSize`: `{Number}` Minimum http body size needed to cache the response.
+* `vary`: `{Array}` List of HTTP request headers used for Vary
 * `ignoreNoCache`: `{Boolean}` Flag for ignoring 'Cache-Control: no-cache' headers.
 * `debug`: `{Boolean}` Flag showing whether to debug the middleware or not.
 * `logging`: `{Function}` External logging function to be used for debugging.
