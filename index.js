@@ -285,14 +285,14 @@ class Cache {
         let _response_body, _response_headers = new Object()
 
         for (let key in this.response) {
-          if (key === 'body') continue
+          if (key === 'body') {
+            _response_body = this.response.body
+            continue
+          }
 
           if (responseKeys.indexOf(key) !== -1)
             _response_headers[key] = this.response[key]
         }
-
-        if (this.response.body)
-          _response_body = this.response.body
 
         if (that.options.debug) that.options._debug('caching', requestKey)
 
