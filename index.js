@@ -3,6 +3,8 @@
 const Store = require('./lib/store')
 const responseKeys = [ 'status', 'message', 'header', 'body' ]
 const querystring = require('querystring')
+const StringDecoder = require('string_decoder').StringDecoder
+const zlib = require('zlib')
 
 class Cache {
   configure(routes, options) {
@@ -286,7 +288,26 @@ class Cache {
 
         for (let key in this.response) {
           if (key === 'body') {
-            _response_body = this.response.body
+            if (this.response.body instanceof zlib.Gzip) {
+              _response_body = yield (() => {
+                return new Promise((resolve, reject) => {
+                  let body = Buffer.from('')
+                  const decoder = new StringDecoder('utf8')
+
+                  this.response.body.on('data', (chunk) => body = Buffer.concat([ body, chunk ]))
+
+                  this.response.body.once('end', () => {
+                    this.response.body = body
+                    resolve(body)
+                  })
+
+                  this.response.body.once('error', (error) => reject(error))
+                })
+              })()
+            }
+            else
+              _response_body = this.response.body
+
             continue
           }
 
