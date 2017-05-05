@@ -221,17 +221,28 @@ class Cache {
         // return cached response
         let requestKeyHeaders, requestKeyBody
 
+        if (that.options.vary)
+          for (let o of that.options.vary)
+            this.response.vary(o)
+        else
+            this.response.vary('Accept-Encoding')
+
+        let mod = '%'
+
+        for (let o of this.response.headers.vary.split(','))
+          mod += this.request.get(o.trim().toLowerCase())
+
         if ('undefined' !== typeof that.routes[cacheKey].cacheKeyPrefix) {
-          requestKeyHeaders = that.routes[cacheKey].cacheKeyPrefix + ':' + requestKey + ':headers'
-          requestKeyBody = that.routes[cacheKey].cacheKeyPrefix + ':' + requestKey + ':body'
+          requestKeyHeaders = that.routes[cacheKey].cacheKeyPrefix + ':' + requestKey + ':headers' + mod
+          requestKeyBody = that.routes[cacheKey].cacheKeyPrefix + ':' + requestKey + ':body' + mod
         }
         else if ('undefined' !== typeof that.options.cacheKeyPrefix) {
-          requestKeyHeaders = that.options.cacheKeyPrefix + ':' + requestKey + ':headers'
-          requestKeyBody = that.options.cacheKeyPrefix + ':' + requestKey + ':body'
+          requestKeyHeaders = that.options.cacheKeyPrefix + ':' + requestKey + ':headers' + mod
+          requestKeyBody = that.options.cacheKeyPrefix + ':' + requestKey + ':body' + mod
         }
         else {
-          requestKeyHeaders = requestKey + ':headers'
-          requestKeyBody = requestKey + ':body'
+          requestKeyHeaders = requestKey + ':headers' + mod
+          requestKeyBody = requestKey + ':body' + mod
         }
 
         let exists = yield that.store.has(requestKeyHeaders)
