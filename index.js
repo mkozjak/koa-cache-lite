@@ -304,10 +304,11 @@ class Cache {
                   this.response.body.once('error', (error) => reject(error))
                 })
               })()
-            }
-            else
-              _response_body = this.response.body
 
+              continue
+            }
+
+            _response_body = this.response.body
             continue
           }
 
