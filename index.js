@@ -269,7 +269,9 @@ class Cache {
             this[key] = headers[key]
           }
 
-          if (this.type === 'application/octet-stream' || this.type.indexOf('image/') !== -1)
+          if (this.type === 'application/octet-stream' ||
+              this.type.indexOf('image/') !== -1 ||
+              this.request.acceptsEncodings([ 'gzip', 'deflate' ]))
             body = yield that.store.getBuffer(requestKeyBody)
           else
             body = yield that.store.get(requestKeyBody)
