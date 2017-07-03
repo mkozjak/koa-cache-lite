@@ -200,3 +200,7 @@ cache.clear('/api/v2/*')
 ### cache.currentCacheType() -> String
 
 Returns a type of caching system currently used.
+
+## License
+
+  [MIT](LICENSE)
