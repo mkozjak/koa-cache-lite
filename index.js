@@ -323,7 +323,7 @@ class Cache {
         // set new caching entry
         let storeRequest = {}
         storeRequest[requestKeyHeaders] = JSON.stringify(_response_headers)
-        storeRequest[requestKeyBody] = _response_body
+        storeRequest[requestKeyBody] = JSON.stringify(_response_body)
 
         that.store.setMultiple(requestKey, storeRequest)
       }
