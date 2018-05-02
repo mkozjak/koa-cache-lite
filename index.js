@@ -273,6 +273,10 @@ class Cache {
               this.type.indexOf('image/') !== -1 ||
               this.request.acceptsEncodings([ 'gzip', 'deflate' ]))
             body = yield that.store.getBuffer(requestKeyBody)
+          else if (this.type === 'text/html' || this.type === "text/plain") {
+            body = yield that.store.get(requestKeyBody)
+            body = JSON.parse(body)
+          }
           else
             body = yield that.store.get(requestKeyBody)
 
