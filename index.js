@@ -38,7 +38,7 @@ class Cache {
       this.options = {}
 
     this.options.expireOpts = new Map()
-    this.defaultTimeout = 5000
+    this.options.defaultTimeout = 5000
     this.store = new Store(this.options)
 
     for (let key of Object.keys(this.routes)) {
