@@ -5,7 +5,7 @@
     "name": "Mario Kozjak",
     "email": "kozjakm1@gmail.com"
   },
-  "version": "3.8.5",
+  "version": "3.8.6",
   "main": "index.js",
   "engines": {
     "node": ">= 4.0.0"
