@@ -1,6 +1,6 @@
 [![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/mkozjak/koa-cache-lite/blob/master/LICENSE)
 [![npm](https://img.shields.io/npm/dm/koa-cache-lite.svg?maxAge=2592000)](https://www.npmjs.com/package/koa-cache-lite)
-[![Donate Bitcoin/Altcoins](https://img.shields.io/badge/donate-coins-blue.svg)](https://donate.kozjak.io)  
+[![Donate Bitcoin/Altcoins](https://img.shields.io/badge/donate-coins-blue.svg)](https://mario.kozjak.io/donate)  
 [![NPM](https://nodei.co/npm/koa-cache-lite.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/koa-cache-lite/)
 
 # koa-cache-lite
@@ -208,4 +208,4 @@ Returns a type of caching system currently used.
 
 ## Donate
 
-If you love this project, consider [donating](https://donate.kozjak.io)!
+If you love this project, consider [donating](https://mario.kozjak.io/donate)!
