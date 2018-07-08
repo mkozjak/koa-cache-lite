@@ -33,7 +33,7 @@ npm install koa-cache-lite
 npm install -g koa-cache-lite
 ```
 
-## Usage example
+## Quick start
 
 ```js
 'use strict'
@@ -205,10 +205,13 @@ Returns a type of caching system currently used.
 ## Professional support
 I offer professional support for koa-cache-lite and beyond. I have many years of expertise on building robust, scalable Node.js applications and can help you overcome issues and challenges preventing you to ship your great products. I also excel in software architecture and implementation, being able to provide you with development, planning, consulting, training and customization services. Feel free to [contact me](mailto:kozjakm1@gmail.com?subject=Support) so we can discuss how to help you finish your products!
 
-## License
-
-  [MIT](LICENSE)
+## Sponsors
+Become a sponsor and get your logo on project's README on GitHub with a link to your site. Feel free to [contact me](mailto:kozjakm1@gmail.com?subject=Sponsors) for the arrangement!
 
 ## Donate
 
 If you love this project, consider [donating](https://mario.kozjak.io/donate)!
+
+## License
+
+  [MIT](LICENSE)
